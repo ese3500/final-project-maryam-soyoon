@@ -162,6 +162,27 @@ SD Card and SPI board -> To store histories and help people track
 What is your metric for evaluating how well your product/solution solves the problem? Think critically on this section. Having a boolean metric such as “it works” is not very useful. This is akin to making a speaker and if it emits sound, albeit however terrible and ear wrenching, declare this a success.
 It is recommended that your project be something that you can take pride in. Oftentimes in interviews, you will be asked to talk about projects you have worked on.
 
+We have multple criterion for success based on our different features:
+
+1. We would want to see that packages of suitable weights can be detected. This range will depend on the Load Cells we purchase, although may be in the range of 1-15 kg.
+
+2. Keypad functionality:
+
+  - Inputting an incorrect password >= 3 times should disable the keypad for ~1 minute
+  
+  - Inputting an incorrect password does not disable alarms. So, picking up the package should sound the alarm system that notifies the homeowner and can only be disabled via the app (or maybe reentry of correct passcode)
+
+  - Inputting a correct password does disable alarms. So, lifting the package within a time frame (e.g. 1 minute) should not cause the alarms to go off.
+
+3. LCD Screen
+
+  - Somewhat aesthetic (but mainly readable) interface for user to see prompt and enter response.
+
+4. Data Storage
+
+  - Reliable storage of timestamps, photos, and useful notes for the homeowner. The exact details of what data we will be storing are currently unclear.
+
+
 ### 11. Timeline
 
 This section is to help guide your progress over the next few weeks. Feel free to adjust and edit the table below to something that would be useful to you. Really think about what you want to accomplish by the first milestone.
