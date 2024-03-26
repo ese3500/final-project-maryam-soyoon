@@ -195,6 +195,60 @@ This section is to help guide your progress over the next few weeks. Feel free t
 | Week 4: 4/15 - 4/21 |          |                 |
 | Week 5: 4/22 - 4/26 |          |                 |
 
+Tasks for Week 1:
+
+  - Present slideshow -> Maryam and Soyoon
+  
+  - Send in first draft of BOM to be ordered -> Maryam and Soyoon
+  
+  - Make project diagram (pinout, power management) -> Maryam
+
+  - Start working on SPI (and I2C?) driver -> Maryam
+
+  - Start working on Keypad code / library -> Soyoon
+
+  - Work on load cell ADC library -> Soyoon?
+
+
+Tasks for Week 2:
+
+  - Work on tasks missed in Week 1 -> Maryam and Soyoon
+
+  - Go to MEAM Labs to figure out load cell platform -> Maryam and Syoon
+  
+  - Calibrate and read ADC Values from Load Cell -> Soyoon
+
+  - Add LCD Graphics and integrate with Keypad code -> Maryam
+
+  - Get ultrasonic to detect distances <= 20 cm -> Maryam and Soyoon
+
+  - Send in second draft of BOM -> Maryam and Soyoon
+
+
+Tasks for Week 3:
+
+  - Work on tasks missed in Week 2 -> Maryam and Soyoon
+
+  - Work in integrating second ATmega -> TBD
+
+  - Work on data storage and SD Card -> TBD
+
+  - Work on camera -> TBD
+
+
+Tasks for Week 4:
+
+  - Work on tasks missed in Week 3 -> Maryam and Soyoon
+
+  - Work on wireless WiFi stuff and Blynk -> TBD
+
+  - Test out full alarm system (password + all possible cases + disabling with WiFi) -> Maryam and Soyoon
+
+
+Tasks for Week 5:
+
+  - Work on tasks missed in Week 4 and wrapping up! -> Maryam and Soyoon
+
 ### 12. Proposal Presentation
 
 Add your slides to the Final Project Proposal slide deck in the Google Drive.
