@@ -4,19 +4,37 @@
 #include <stdbool.h>
 
 /*
-Initialize function to begin I2C Communication
+Begin I2C Communication
 */
 void begin();
 
 /*
-Stop I2C Communication
+End I2C Communication
 */
-void stop();
+void end();
+
 
 /*
-Reads data from peripheral denoted by device_address and stores it into buffer
+Starts the read by writing the device address
 */
-bool read(uint8_t device_address, int num_bytes);
+void start_read(uint8_t device_address);
+
+/*
+Stop the read by writing a NACK
+*/
+void stop_read();
+
+/*
+Read from the TWDR and send an acknowledge bit
+Returns what was sent by peripheral
+*/
+uint8_t read(uint8_t reg_address);
+
+/*
+Write a byte into a peripheral
+*/
+void write(uint8_t device_address, uint8_t reg_address, uint8_t data);
+
 // bool read(uint8_t device_address, uint8_t *buffer, size_t len);
 
 /*

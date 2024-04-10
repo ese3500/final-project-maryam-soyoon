@@ -68,9 +68,16 @@ uint8_t read(uint8_t reg_address) {
 //     while (!(TWCR1 & (1 << TWINT)));    // Wait for acknowledge
 // }
 
-void write(uint8_t reg_address, uint8_t data) {
-    // Generate start address
+void write(uint8_t device_address, uint8_t reg_address, uint8_t data) {
+    // Start the I2C
     begin();
+
+    // Write the device address
+    TWDR1 = device_address;
+    TWCR1 |= (1 << TWINT);
+    TWCR1 |= (1 << TWEN);
+
+    while (!(TWCR1 & (1 << TWINT)));    // Wait for acknowledge
 
     // Write reg address
     TWDR1 = reg_address;

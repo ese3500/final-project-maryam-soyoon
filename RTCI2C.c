@@ -14,27 +14,52 @@
 #define REG_CONTROL              0x07        /**< control register */
 #define REG_RAM                  0x08        /**< ram start register */
 
+// Source: https://github.com/libdriver/ds1307/blob/master/src/driver_ds1307.c 
+static uint8_t hex2bcd(uint8_t val)
+{
+    uint8_t i, j, k;
+    
+    i = val / 10;            /* get tens place */
+    j = val % 10;            /* get ones place */
+    k = j + (i << 4);        /* set bcd */
+    
+    return k;                /* return bcd */
+}
+
+// Source: https://github.com/libdriver/ds1307/blob/master/src/driver_ds1307.c 
+static uint8_t bcd2hex(uint8_t val)
+{
+    uint8_t temp;
+    
+    temp = val & 0x0F;              /* get ones place */
+    val = (val >> 4) & 0x0F;        /* get tens place */
+    val = val * 10;                 /* set tens place */
+    temp = temp + val;              /* get hex */
+    
+    return temp;                    /* return hex */
+}
+
 void RTC_Init() {
-    uint8_t seconds = 0x00; // 0 s and enable oscillator bit
-    write(0x00, seconds);
+    uint8_t seconds = hex2bcd(0x00); // 0 s and enable oscillator bit
+    write(RTC_ADDR, 0x00, seconds);
 
-    uint8_t minutes = 0x30; // 30 m
-    write(0x01, minutes);
+    uint8_t minutes = hex2bcd(0x30); // 30 m
+    write(RTC_ADDR, 0x01, minutes);
 
-    uint8_t hours = 0x01;   // 1 hour in 24 hour clock
-    write(0x02, seconds);
+    uint8_t hours = hex2bcd(0x01);   // 1 hour in 24 hour clock
+    write(RTC_ADDR, 0x02, seconds);
 
-    uint8_t day = 0x02; // Monday
-    write(0x03, day);
+    uint8_t day = hex2bcd(0x02); // Monday
+    write(RTC_ADDR, 0x03, day);
 
-    uint8_t date = 0x15; // The 15th
-    write(0x04, date);
+    uint8_t date = hex2bcd(0x15); // The 15th
+    write(RTC_ADDR, 0x04, date);
 
-    uint8_t month = 0x04;   // April
-    write(0x05, month);
+    uint8_t month = hex2bcd(0x04);   // April
+    write(RTC_ADDR, 0x05, month);
 
-    uint8_t year = 0x24;    // 24 (2024!)
-    write(0x06, year);
+    uint8_t year = hex2bcd(0x24);    // 24 (2024!)
+    write(RTC_ADDR, 0x06, year);
 }
 
 uint8_t bcd_to_decimal(uint8_t input) {
@@ -99,19 +124,19 @@ uint8_t RTC_getTime(rtc* rtc) {
         // Read byte
         buffer = read();
         if (i == 0) {
-            rtc->seconds = bcd_to_decimal(buffer);
+            rtc->seconds = bcd2hex(buffer);
         } else if (i == 1) {
-            rtc->minutes = bcd_to_decimal(buffer);
+            rtc->minutes = bcd2hex(buffer);
         } else if (i == 2) {
-            rtc->hours = bcd_to_decimal(buffer);
+            rtc->hours = bcd2hex(buffer);
         } else if (i == 3) {
-            rtc->day = bcd_to_decimal(buffer);
+            rtc->day = bcd2hex(buffer);
         } else if (i == 4) {
-            rtc->date = bcd_to_decimal(buffer);
+            rtc->date = bcd2hex(buffer);
         } else if (i == 5) {
-            rtc->month = bcd_to_decimal(buffer);
+            rtc->month = bcd2hex(buffer);
         } else if (i == 6) {
-            rtc->year = bcd_to_decimal(buffer);
+            rtc->year = bcd2hex(buffer);
         }
     }
 
