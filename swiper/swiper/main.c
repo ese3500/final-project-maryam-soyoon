@@ -32,7 +32,7 @@ static const short NUM[10][7] = {
 		{1, 1, 1, 0, 0, 1, 0}, // 7
 		{1, 1, 1, 1, 1, 1, 1}, // 8
 		{1, 1, 1, 1, 0, 1, 0}  // 9
-}
+};
 
 static const short NUM_POS[7][8] = {
 	// x0    y0    x1    y1
@@ -45,7 +45,7 @@ static const short NUM_POS[7][8] = {
 		{0, 0, 1, 2, 0, 1, 2, 2}, // 4
 		{1, 1, 1, 2, 1, 2, 2, 2}, // 5
 		{0, 1, 2, 2, 1, 1, 2, 3}, // 6
-}
+};
 
 volatile int key_C = 0; // column pin pulled down in ISR
 
@@ -55,10 +55,10 @@ void start_LCD() {
 	lcd_init();
 
 	///set background color to black
-  LCD_setScreen(BLACK);
+	LCD_setScreen(BLACK);
 	
 	/// TODO: check if string fits in one line
-	LCD_drawString(0, 2, "Enter passcode. # submit, * clear", WHITE, BLACK);
+	LCD_drawString(0, 2, "# submit, * clear", WHITE, BLACK);
 	LCD_drawLine(1,12,158,12,65535);
 }
 
@@ -317,6 +317,7 @@ void clear_num() {
 
 	// erase all numbers
   LCD_drawBlock(1, 42, 158, 126, BLACK);
+  num_count = 0;
 
 }
 
@@ -345,6 +346,8 @@ int main(void)
 			} else if (num_count < 4){
 				num_count++;
 				draw_num(key);
+			} else { /// TODO: temporary since * is not working
+				clear_num();
 			}
 			/// NOTE: don't draw anything if num_count == 4 
 			// 				and a number was pressed
@@ -354,7 +357,7 @@ int main(void)
 			//UART_putstring(num);
 			//UART_putstring("\n");
 		}
-		
+		_delay_ms(200);
 		
     }
 }
