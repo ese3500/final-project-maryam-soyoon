@@ -36,6 +36,8 @@ Returns what was sent by peripheral
 */
 uint8_t read();
 
+uint8_t read_byte(uint8_t device_address, uint8_t register_address);
+
 /*
 Write a byte into a peripheral
 */

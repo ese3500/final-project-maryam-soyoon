@@ -117,148 +117,31 @@ uint8_t bcd_to_decimal(uint8_t input) {
 
 void RTC_getTime(rtc* my_rtc) {
     uint8_t buffer;
-	
-	start();
 
-    send_address(RTC_ADDR, 0);
- 	
-   	send_reg_address(0x00);
-	
-    	start();
-	
-   	send_address(RTC_ADDR, 1);
- 	
- 	buffer = read();
-	 
- 	// buffer = read();
-// 	
-// 	buffer = read();
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->seconds = buffer;
-	
-  	stop_read();
-// // 	
-  	 stop();
-	
-	
-	
-	
-// 	start();
-// 
-// 	send_address(RTC_ADDR, 0);
-// 	
-// 	send_reg_address(0x01);
-// 	
-// 	start();
-// 	
-// 	send_address(RTC_ADDR, 1);
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->minutes = buffer;
-// 	
-// 	stop_read();
-// 	
-// 	stop();
-	
-	
-// 	
-// 	
-// 	
-// 	
-// 	start();
-// 
-// 	send_address(RTC_ADDR, 0);
-// 	
-// 	send_reg_address(0x02);
-// 	
-// 	start();
-// 	
-// 	send_address(RTC_ADDR, 1);
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->hours = buffer;
-// 	
-// 	stop_read();
-// 	
-// 	
-// 	
-// 	start();
-// 
-// 	send_address(RTC_ADDR, 0);
-// 	
-// 	send_reg_address(0x03);
-// 	
-// 	start();
-// 	
-// 	send_address(RTC_ADDR, 1);
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->hours = buffer;
-// 	
-// 	stop_read();
-	
-	
-// 	start();
-// 
-// 	send_address(RTC_ADDR);
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->minutes = buffer;
-// 	
-// 	stop_read();
-// 	
-// 	
-// 	
-// 	start();
-// 
-// 	send_address(RTC_ADDR);
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->hours = buffer;
-// 	
-// 	stop_read();
-// 	
-// 	
-// 	start();
-// 
-// 	send_address(RTC_ADDR);
-// 	
-// 	buffer = read();
-// 	
-// 	my_rtc->day = buffer;
-// 	
-// 	stop_read();
-
-    // Read byte and send acknowledge
-//     for (int i = 0; i < 7; i++) {
-//         // Read byte
-//         buffer = read();
-//         if (i == 0) {
-//             my_rtc->seconds = bcd2hex(buffer);
-//         } else if (i == 1) {
-//             my_rtc->minutes = bcd2hex(buffer);
-//         } else if (i == 2) {
-//             my_rtc->hours = bcd2hex(buffer);
-//         } else if (i == 3) {
-//             my_rtc->day = bcd2hex(buffer);
-//         } else if (i == 4) {
-//             my_rtc->date = bcd2hex(buffer);
-//         } else if (i == 5) {
-//             my_rtc->month = bcd2hex(buffer);
-//         } else if (i == 6) {
-//             my_rtc->year = bcd2hex(buffer);
-//         }
-//     }
-// 
-//     // Send NACK
-//     stop_read();
+    for (int i = 0; i < 7; i++) {
+        if (i == 0) {
+            buffer = read_byte(RTC_ADDR, 0x00);
+            my_rtc->seconds = bcd2hex(buffer);
+        } else if (i == 1) {
+            buffer = read_byte(RTC_ADDR, 0x01);
+            my_rtc->minutes = bcd2hex(buffer);
+        } else if (i == 2) {
+            buffer = read_byte(RTC_ADDR, 0x02);
+            my_rtc->hours = bcd2hex(buffer);
+        } else if (i == 3) {
+            buffer = read_byte(RTC_ADDR, 0x03);
+            my_rtc->day = bcd2hex(buffer);
+        } else if (i == 4) {
+            buffer = read_byte(RTC_ADDR, 0x04);
+            my_rtc->date = bcd2hex(buffer);
+        } else if (i == 5) {
+            buffer = read_byte(RTC_ADDR, 0x05);
+            my_rtc->month = bcd2hex(buffer);
+        } else if (i == 6) {
+            buffer = read_byte(RTC_ADDR, 0x06);
+            my_rtc->year = bcd2hex(buffer);
+        }
+    }
 
     return;
 }

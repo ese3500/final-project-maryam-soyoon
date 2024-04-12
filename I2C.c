@@ -50,10 +50,38 @@ void send_reg_address(uint8_t address) {
 	return;
 }
 
-void stop_read() {
+void nack() {
     // Send a NACK
-	TWCR0 = (1 << TWINT) | (1 << TWEN);
+	// TWCR0 = (1 << TWINT) | (1 << TWEN);
     TWCR0 &= ~(1 << TWEA);
+}
+
+uint8_t read_byte(uint8_t device_address, uint8_t register_address) {
+	// Send start condition
+	start();
+
+	// Send device address
+	send_address(device_address, 0);
+
+	// Send register address
+	send_reg_address(register_address);
+
+	// Send repeated start
+	start();
+
+	// Setup nack
+	nack();
+
+	// Send device address
+	send_address(device_address, 1);
+
+	// Read data
+	uint8_t buffer = TWDR0;
+
+	// Stop
+	stop();
+
+	return buffer;
 }
 
 uint8_t read() {
