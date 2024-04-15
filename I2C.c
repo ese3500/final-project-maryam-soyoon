@@ -92,7 +92,6 @@ uint8_t read_byte(uint8_t device_address, uint8_t register_address) {
 
  	uint8_t buffer = TWDR0;
 	
-	//nack();
 	stop();
 
 	return buffer;
@@ -133,5 +132,19 @@ void write(uint8_t device_address, uint8_t reg_address, uint8_t data) {
     // Generate stop
     stop();
 
+}
+
+void burst_write(uint8_t reg_address, uint8_t data) {
+	// Send register address
+	send_reg_address(reg_address);
+
+	// Write data
+	TWDR0 = data;
+	TWCR0 = (1 << TWINT) | (1 << TWEN);
+	while (!(TWCR0 & (1 << TWINT)));
+
+	if ((TWSR0 & 0xF8) != TW_MT_DATA_ACK) {
+		while(1);
+	}
 }
 

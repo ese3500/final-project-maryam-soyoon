@@ -43,6 +43,8 @@ Write a byte into a peripheral
 */
 void write(uint8_t device_address, uint8_t reg_address, uint8_t data);
 
+void burst_write(uint8_t reg_address, uint8_t data);
+
 // bool read(uint8_t device_address, uint8_t *buffer, size_t len);
 
 /*
