@@ -33,11 +33,15 @@ int main(void)
 	
 	drdy = 0;
 	
+	uint8_t buffer;
+	
 	begin();
 	
 	// start();
 	
  	ADC_Init();
+	 
+	// buffer = read_byte(0x2A, 0x01);
 	 
 // 	uint32_t temp = ADC_getValue();
 //  	sprintf(String, "Value is: %ld\n", temp);
@@ -45,8 +49,10 @@ int main(void)
 	
 	while(1) {
 		uint32_t temp = ADC_getValue();
-		sprintf(String, "Value is: %ld\n", temp);
-		UART_putstring(String);
+// 		sprintf(String, "Value is: %ld\n", temp);
+// 		UART_putstring(String);
+		
+		// buffer = read_byte(0x2A, 0x00);
 	}
 // 	
 // 	while (drdy) {
@@ -59,4 +65,3 @@ int main(void)
     {
     }
 }
-
