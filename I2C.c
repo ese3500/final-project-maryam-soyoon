@@ -32,6 +32,11 @@ void stop() {
 }
 
 void send_address(uint8_t device_address, int rw) {
+	if (rw == 0) {
+		// Write mode, set as output
+		DDRC |= (1 << DDC4);
+	}
+
     TWDR0 = (device_address << 1) + rw;
     TWCR0 = (1 << TWINT) | (1 << TWEN);
     while (!(TWCR0 & (1 << TWINT)));    // Wait for acknowledge
@@ -41,6 +46,7 @@ void send_address(uint8_t device_address, int rw) {
 // 	}
 	
 	if (rw == 1) {
+		// Read mode, set as input
 		DDRC &= ~(1 << DDC4);
 	} else {
 		DDRC |= (1 << DDC4);
