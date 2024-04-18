@@ -1,7 +1,8 @@
 #include "I2C.h"
+#include "RTCI2C.h"
 #include "stdbool.h"
 
-#define RTC_ADDR 0xD0
+#define RTC_ADDR 0x68
 
 // Source: https://github.com/libdriver/ds1307/blob/master/src/driver_ds1307.c 
 #define REG_SECOND               0x00        /**< second register */
@@ -15,7 +16,7 @@
 #define REG_RAM                  0x08        /**< ram start register */
 
 // Source: https://github.com/libdriver/ds1307/blob/master/src/driver_ds1307.c 
-static uint8_t hex2bcd(uint8_t val)
+uint8_t hex2bcd(uint8_t val)
 {
     uint8_t i, j, k;
     
@@ -27,7 +28,7 @@ static uint8_t hex2bcd(uint8_t val)
 }
 
 // Source: https://github.com/libdriver/ds1307/blob/master/src/driver_ds1307.c 
-static uint8_t bcd2hex(uint8_t val)
+uint8_t bcd2hex(uint8_t val)
 {
     uint8_t temp;
     
@@ -40,36 +41,36 @@ static uint8_t bcd2hex(uint8_t val)
 }
 
 void RTC_Init() {
-    uint8_t seconds = hex2bcd(0x00); // 0 s and enable oscillator bit
+    uint8_t seconds = 0x00; // 0 s and enable oscillator bit
     write(RTC_ADDR, 0x00, seconds);
 
-    uint8_t minutes = hex2bcd(0x30); // 30 m
+    uint8_t minutes = 0x30; // 30 m
     write(RTC_ADDR, 0x01, minutes);
 
-    uint8_t hours = hex2bcd(0x01);   // 1 hour in 24 hour clock
-    write(RTC_ADDR, 0x02, seconds);
+    uint8_t hours = 0x01;   // 1 hour in 24 hour clock
+    write(RTC_ADDR, 0x02, hours);
 
-    uint8_t day = hex2bcd(0x02); // Monday
+    uint8_t day = 0x05; // Thursday
     write(RTC_ADDR, 0x03, day);
 
-    uint8_t date = hex2bcd(0x15); // The 15th
+    uint8_t date = 0x11; // The 11th
     write(RTC_ADDR, 0x04, date);
 
-    uint8_t month = hex2bcd(0x04);   // April
+    uint8_t month = 0x04;   // April
     write(RTC_ADDR, 0x05, month);
 
-    uint8_t year = hex2bcd(0x24);    // 24 (2024!)
+    uint8_t year = 0x24;    // 24 (2024!)
     write(RTC_ADDR, 0x06, year);
 }
 
 uint8_t bcd_to_decimal(uint8_t input) {
     // Lower byte
     uint8_t lower = input & 0x0F;
-    int lower_value;
+    int lower_value = 0;
 
     // Upper byte
     uint8_t upper = input & 0xF0;
-    int upper_value;
+    int upper_value = 0;
 
     if (lower == 0x01) {
         lower_value = 1;
@@ -114,34 +115,40 @@ uint8_t bcd_to_decimal(uint8_t input) {
     return (upper_value + lower_value);
 }
 
-uint8_t RTC_getTime(rtc* rtc) {
+void RTC_getTime(rtc* my_rtc) {
     uint8_t buffer;
 
-    start_read(RTC_ADDR);
-
-    // Read byte and send acknowledge
     for (int i = 0; i < 7; i++) {
-        // Read byte
-        buffer = read();
         if (i == 0) {
-            rtc->seconds = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x00);
+			buffer &= 0x7F;
+            my_rtc->seconds = bcd2hex(buffer);
         } else if (i == 1) {
-            rtc->minutes = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x01);
+			buffer &= 0x7F;
+            my_rtc->minutes = bcd2hex(buffer);
         } else if (i == 2) {
-            rtc->hours = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x02);
+			buffer &= 0x1F;
+            my_rtc->hours = bcd2hex(buffer);
         } else if (i == 3) {
-            rtc->day = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x03);
+			buffer &= 0x07;
+            my_rtc->day = bcd2hex(buffer);
         } else if (i == 4) {
-            rtc->date = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x04);
+			buffer &= 0x3F;
+            my_rtc->date = bcd2hex(buffer);
         } else if (i == 5) {
-            rtc->month = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x05);
+			buffer &= 0x1F;
+            my_rtc->month = bcd2hex(buffer);
         } else if (i == 6) {
-            rtc->year = bcd2hex(buffer);
+            buffer = read_byte(RTC_ADDR, 0x06);
+			buffer &= 0xFF;
+            my_rtc->year = bcd2hex(buffer);
         }
     }
 
-    // Send NACK
-    stop_read();
-
-    return buffer;
+    return;
 }

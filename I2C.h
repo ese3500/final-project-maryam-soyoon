@@ -1,6 +1,6 @@
 #include <avr/io.h>
 #include <avr/io.h>
-#include <avr/twi.h>
+#include <util/twi.h>
 #include <stdbool.h>
 
 /*
@@ -9,15 +9,21 @@ Begin I2C Communication
 void begin();
 
 /*
+Send start signal
+*/
+void start();
+
+/*
 End I2C Communication
 */
-void end();
-
+void stop();
 
 /*
 Starts the read by writing the device address
 */
-void start_read(uint8_t device_address);
+void send_address(uint8_t device_address, int rw);
+
+void send_reg_address(uint8_t address);
 
 /*
 Stop the read by writing a NACK
@@ -28,7 +34,9 @@ void stop_read();
 Read from the TWDR and send an acknowledge bit
 Returns what was sent by peripheral
 */
-uint8_t read(uint8_t reg_address);
+uint8_t read();
+
+uint8_t read_byte(uint8_t device_address, uint8_t register_address);
 
 /*
 Write a byte into a peripheral
@@ -49,4 +57,4 @@ Returns status of the peripheral
 
 0 - Peripheral free
 */
-int get_status();
+// int get_status();
