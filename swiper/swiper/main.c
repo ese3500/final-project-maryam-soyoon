@@ -55,13 +55,16 @@ int pw[4] = {1,2,3,4};
 volatile int incorrect_count = 0; /// TODO: count number of incorrect submission
 volatile int overflow_count = 0;
 volatile int disabled = 0; // flag to indicate if alarm is disabled
+volatile int buzz = 0; // keeps track of buzzer on/off
 
 void buzz_on() { // buzzer on (50% duty cycle)
 	OCR2B = OCR2A / 2;
+	buzz = 1;
 }
 
 void buzz_off() { // buzzer off
 	OCR2B = 0;
+	buzz = 0;
 }
 
 void start_LCD() {
@@ -88,22 +91,21 @@ void Initialize() {
 	
 	DDRD &= ~(1<<DDD2); //PD2 Keypad R3 input
 	DDRD &= ~(1<<DDD4); //PD4 Keypad R4 input
+
+	DDRB &= ~(1<<DDB4); //PB4 "lifted" input
+	/// TODO: "lifted" output from the other Atmega should be pulled high by default
 	
-	DDRD |= (1 << DDD3); // PD3 output (OC2B) for buzzer
+	DDRD |= (1 << DDD7); // PD7 "disabled" output
+	PORTD &= ~(1<<PORTD7); // pull PD7 low
+	DDRD |= (1 << DDD3); // PD3 buzzer output (OC2B)
 	
-	/*
-	DDRC |= (1<<DDC4); //PC4 Keypad R1 output
-	DDRC |= (1<<DDC5); //PC5 Keypad R2 output
-	
-	DDRD |= (1<<DDD2); //PD2 Keypad R3 output
-	DDRD |= (1<<DDD4); //PD4 Keypad R4 output
-	*/
-	
-	/// TODO: comment out / remove line below if we drop ISR
-	PCICR |= (1 << PCIE1);	 // Enable Pin Change Interrupt for PCINT8-14
+	PCICR |= (1 << PCIE0);	 // Enable Pin Change Interrupt for PCINT0-7
+	//PCICR |= (1 << PCIE1);	 // Enable Pin Change Interrupt for PCINT8-14
 	//PCICR |= (1 << PCIE2);	 // Enable Pin Change Interrupt for PCINT16-23
 	
 	// Enable Pin Change Interrupt for:
+	PCMSK0 |= (1 << PCINT4); // PB4
+
 	/*
 	PCMSK1 |= (1 << PCINT9); // PC1
 	PCMSK1 |= (1 << PCINT10); // PC2
@@ -143,16 +145,11 @@ void Initialize() {
 	TCCR2A |= (1<<COM2B1);
 
 	OCR2A = 158; // sounds G
-	//OCR2B = 0; // buzzer off
-	//buzz_off();
+	buzz_off(); //OCR2B = 0;
 	
 	/// TODO: erase below after integration. for testing.
 	//OCR2B = OCR2A / 2; // buzzer on (50% duty cycle)
-	buzz_on();
-	
-	/// TODO: figure out which timer to use for measuring 5 minutes. 
-	// Use same timer 2 perhaps?
-	// actually let's try timer 1
+	//buzz_on();
 
 	//// Timer1 setup (for measuring 5 minutes)
 	// Set Timer 1 clock to be 15625 Hz (prescale 16 MHz / 1024)
@@ -178,22 +175,66 @@ void Initialize() {
 	start_LCD();
 }
 
+void clear_num() {
+	///set background color to black
+	LCD_setScreen(BLACK);
+	
+	LCD_drawString(0, 2, "# submit, * clear", WHITE, BLACK);
+	LCD_drawLine(1,12,158,12,65535);
+
+	if (buzz && !disabled && (PINB & (1<<PINB6))) {
+		LCD_drawString(0, 2, "UNAUTHORIZED PICKUP", RED, BLACK);
+		} else if (incorrect_count >= 3) {
+		/// TODO: check if too long
+		LCD_drawString(0, 120, "Incorrect PW 3 or more times!", RED, BLACK);
+		} else if (!(PINB & (1<<PINB6))) { // NOT lifted
+		/// TODO: check if the position does not mess up
+		LCD_drawString(0, 120, "PACKAGE PUT DOWN", WHITE, BLACK);
+	}
+
+
+	// erase all numbers
+	//LCD_drawBlock(1, 42, 158, 126, BLACK);
+	num_count = 0;
+
+}
+
 ISR(TIMER1_OVF_vect) {
   /// TODO: debugging
-	UART_putstring("Timer 1 overflow\n");
+	//UART_putstring("Timer 1 overflow\n");
 	
 	/// TODO: decide if we want to increment ovf counter only when disabled
 	overflow_count += 1;
-	//NOTE: 65535/15625 = 4.194 s per overflow (under 15625 Hz clock)
+	/// NOTE: 65535/15625 = 4.194 s per overflow (under 15625 Hz clock)
+
 	// 5 minutes: 5*60/4.19424 = 71.52 overflows
-	if (disabled && (overflow_count >= 72)) {
+	//if (disabled && (overflow_count >= 72)) {
 		// 5 minutes passed
+
+	// 1 minute: 60/4.19424 = 14.19 overflows
+	if (disabled && (overflow_count >= 15)) {
+		// 1 minute passed
 		disabled = 0;
+		PORTD &= ~(1<<PORTD7); // pull PD7 low
 		/// TODO: for testing. remove after confirming.
-		buzz_on();
+		//buzz_on();
 	}
 }
 
+ISR(PCINT0_vect) { //PB4 changed
+	if (PINB & (1<<PINB4)) { // PB4 HIGH, "lifted"
+		if (!disabled) {
+			buzz_on();
+
+			// indicate on screen
+			//LCD_setScreen(BLACK);	
+			//LCD_drawString(0, 2, "UNAUTHORIZED PICKUP", RED, BLACK);
+			// --> will be handled in "clear_num()" function
+		}
+	} else { // package put down
+		clear_num();	
+	}
+}
 
 /*
 ISR(PCINT1_vect) {
@@ -401,19 +442,6 @@ void draw_num(short num) {
 	
 }
 
-void clear_num() {
-	///set background color to black
-	LCD_setScreen(BLACK);
-	
-	LCD_drawString(0, 2, "# submit, * clear", WHITE, BLACK);
-	LCD_drawLine(1,12,158,12,65535);
-
-	// erase all numbers
-  //LCD_drawBlock(1, 42, 158, 126, BLACK);
-  num_count = 0;
-
-}
-
 void submit_num() {
 	/// TODO: implement
 	
@@ -426,36 +454,36 @@ void submit_num() {
 			if (nums[i] != pw[i]) { // incorrect password
 				/// TODO: potentially indicate "incorrect password" on screen				
 				incorrect_count++;
-				if (incorrect_count >= 5) {
+				if (incorrect_count >= 3) {
 					// set off the alarm
 					buzz_on();
-					/// TODO: figure out how to reset. Just password input?
-					LCD_setScreen(BLACK);	
-					LCD_drawString(0, 56, "Incorrect PW 5 times!", WHITE, BLACK);
-				} else {
-					clear_num();
-				}
+					//LCD_setScreen(BLACK);	
+
+					//LCD_drawString(0, 56, "Incorrect PW 5 times!", WHITE, BLACK);
+
+					/// TODO: check that inputting correct pw will turn it off
+					//LCD_drawString(0, 2, "Incorrect PW 5 or more times!", RED, BLACK);
+				} //else {
+				clear_num();
+				//}
 				return;
 			}
 		}
 		
 		/// Correct password ///
 		disabled = 1;
+		PORTD |= (1<<PORTD7); // pull PD7 high
 
 		// Write to the screen 
 		LCD_setScreen(BLACK);	
 		LCD_drawString(0, 56, "Correct PW! Alarm disabled.", WHITE, BLACK);
 		
-		/// TODO: turn off alarm for 5 minutes
-		///       After 5 minutes, screen should return to initial state and alarm back on.
+		/// TODO: turn off alarm for 1 minute
+		///       After 1 minute, screen returns to initial and alarm back on.
 		buzz_off();
-		overflow_count = 0;
-		
-		/*
-		clear_num();
-		*/
-		
+		overflow_count = 0;		
 		incorrect_count = 0; // reset incorrect password input count
+		clear_num();
 	}
 	
 	
@@ -471,29 +499,31 @@ int main(void)
 	
     while (1) 
     {
-		/// TODO: don't read keypad while alarm is disabled. Potentially a flag
-		short key = read_keypad();
-		
-		if (key >= 0) { // a key was read
-			if (key == 10) { // *
-				clear_num();
-			} else if (key == 11) { // #
-				submit_num();
-			} else if (num_count < 4){
-				nums[num_count] = key; // store password number
-				num_count++;
-				draw_num(key);
-			}
-			/// NOTE: don't draw anything if num_count == 4 
-			// 				and a number was pressed
+		// don't read keypad while alarm is disabled.
+		if (!disabled) {
+			short key = read_keypad();
+			
+			if (key >= 0) { // a key was read
+				if (key == 10) { // *
+					clear_num();
+				} else if (key == 11) { // #
+					submit_num();
+				} else if (num_count < 4){
+					nums[num_count] = key; // store password number
+					num_count++;
+					draw_num(key);
+				}
+				/// NOTE: don't draw anything if num_count == 4 
+				// 				and a number was pressed
 
-			//char num[10];
-			//sprintf(num, "%d", key);
-			//UART_putstring(num);
-			//UART_putstring("\n");
+				//char num[10];
+				//sprintf(num, "%d", key);
+				//UART_putstring(num);
+				//UART_putstring("\n");
+			}
 		}
-		_delay_ms(250);
-		
-    }
+
+		_delay_ms(250);	
+  }
 }
 
