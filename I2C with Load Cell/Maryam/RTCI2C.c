@@ -47,16 +47,16 @@ void RTC_Init() {
     uint8_t seconds = 0x00; // 0 s and enable oscillator bit
     write(RTC_ADDR, 0x00, seconds);
 
-    uint8_t minutes = 0x30; // 30 m
+    uint8_t minutes = 0x45; // 30 m
     write(RTC_ADDR, 0x01, minutes);
 
     uint8_t hours = 0x01;   // 1 hour in 24 hour clock
     write(RTC_ADDR, 0x02, hours);
 
-    uint8_t day = 0x05; // Thursday
+    uint8_t day = 0x06; // Thursday
     write(RTC_ADDR, 0x03, day);
 
-    uint8_t date = 0x11; // The 11th
+    uint8_t date = 0x26; // The 26th
     write(RTC_ADDR, 0x04, date);
 
     uint8_t month = 0x04;   // April

@@ -15,42 +15,67 @@
 #include <stdio.h>
 #include <String.h>
 #include "ADC.h"
+#include "RTCI2C.h"
 #include "I2C.h"
 #include "uart.h"
 
-char String[25];
+char datalog_info[30];
+uint8_t package_down;
+uint8_t authorized;
+rtc* my_rtc;
 
-int drdy;	// 0 if data not ready, 1 if data ready
+void Initialize() {
+	// Initialize UART
+	UART_init(BAUD_PRESCALER);
 
-ISR(PCINT0_vect) {
-	drdy ^= 1;
-}
-
-int main(void)
-{
-	UART_init(BAUD_PRESCALER); 
-	// Set DRDY pin as a pin change
+	// Set PB4 pin as a pin change
 	DDRB &= ~(1 << DDB4);
 	PCICR |= (1 << PCIE0);
 	PCMSK0 |= (1 << PCINT4);
-	
-	drdy = 0;
 	
 	int32_t buffer;
 	
 	begin();
 	
 	ADC_Init();
-	
-// 	buffer = ADC_getValue();
-// 	sprintf(String, "%d\n", buffer);
-// 	UART_putstring(String);
 
+	RTC_Init();
+
+	my_rtc = malloc(sizeof(rtc));
+
+}
+
+ISR(PCINT0_vect) {
+	// Do Pin change stuff
+}
+
+int main(void)
+{
+	
     while (1) 
     {
 		buffer = ADC_getValue();
-		sprintf(String, "%ld\n", buffer);
-		UART_putstring(String);
-		//_delay_ms(5);
+
+		if (buffer < -10000) {
+			if (!package_down) {
+				RTC_getTime(my_rtc);
+				package_down = 1;
+				// TO DO, DRIVE PIN HIGH TO SHOW THAT PACKAGE IS DOWN
+
+				sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, package_down);
+				UART_putstring(datalog_info);
+				_delay_ms(5000);
+			}
+		} else {
+			if (package_down) {
+				RTC_getTime(my_rtc);
+				package_down = 0;
+				// TO DO, DRIVE PIN LOW TO SHOW THAT PACKAGE IS UP
+
+				sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, package_down);
+				UART_putstring(datalog_info);
+				_delay_ms(5000);
+			}
+		}
     }
 }
