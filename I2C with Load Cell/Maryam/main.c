@@ -25,20 +25,22 @@ volatile uint8_t authorized;
 volatile int overflow_count = 0;
 //volatile int detected = 0;
 volatile int adc_count = 0;
-//volatile int32_t adc_sum = 0;
+volatile int32_t adc_sum = 0;
+volatile int32_t base = 0;
 rtc* my_rtc;
 int32_t buffer;
+char String[30];
 
 void Initialize() {
-	cli();
+	//cli();
 
-	DDRB &= ~(1 << DDB2); // PB2 "authorized" input
-	// Enable pin change interrupt for PB2
-	PCICR |= (1 << PCIE0);
-	PCMSK0 |= (1 << PCINT2);
+	DDRB &= ~(1 << DDB4); // PB4 "authorized" input
+	// Enable pin change interrupt for PB4
+	//PCICR |= (1 << PCIE0);
+	//PCMSK0 |= (1 << PCINT4);
 
-	DDRB |= (1<<DDB1); // PB1 "lifted" output
-	PORTB |= (1<<PORTB1); // pull PB1 high
+	DDRB |= (1<<DDB3); // PB3 "lifted" output
+	PORTB |= (1<<PORTB3); // pull PB1 high
 
 	/*
 	//// Timer1 setup (for measuring 5 seconds)
@@ -61,10 +63,11 @@ void Initialize() {
 	*/
 
 	/// TODO: check this doesn't break things
-	sei(); 
+	//sei(); 
 
 	// Initialize UART
-	UART_init(BAUD_PRESCALER);	
+	UART_init(BAUD_PRESCALER);
+	
 	begin();
 	
 	ADC_Init();
@@ -72,6 +75,17 @@ void Initialize() {
 	RTC_Init();
 
 	my_rtc = malloc(sizeof(rtc));
+	
+	package_down = 0;
+}
+
+void calibrate() {
+	for (int i = 0; i < 5; i++) {
+		buffer = ADC_getValue();
+		adc_sum += buffer;
+		_delay_ms(100);
+	}
+	base = (adc_sum / 5);
 }
 
 /*
@@ -91,36 +105,52 @@ ISR(TIMER1_OVF_vect) {
 	}
 }
 */
-
-ISR(PCINT0_vect) { // PB2 "authorized" changed
+/*
+ISR(PCINT0_vect) { // PB4 "authorized" changed
 	/// TODO: Pin change stuff
-	if (PINB & (1<<PINB2)) { // authorized
+	if (PINB & (1<<PINB4)) { // authorized
 		authorized = 1;
 	} else { // not authorized
 		authorized = 0;
 	}
 }
+*/
 
 
 int main(void)
 {
 	Initialize();
 	
+	calibrate();
+	
     while (1) 
     {
-			buffer = ADC_getValue();
+ 			buffer = ADC_getValue();
+//  						sprintf(String, "%d\n", buffer);
+//  						UART_putstring(String);
+			
 
-			if (buffer < -10000) {
+			if (buffer < -15000) {
 				/// TODO: check if certain plus delta value could be the case with different position
 				// package should exceed threshold for 5 seconds
 				if (!package_down) {
 					adc_count++;
-					if (adc_count >= 10) {
+					if (adc_count >= 25) {
 					RTC_getTime(my_rtc);
+					
+// 					sprintf(String, "%02d:%02d:%02d %02d/%02d\n", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date);
+// 					UART_putstring(String);
+					
 					package_down = 1;
-					PORTB &= ~(1<<PORTB1); // pull PB1 low (Not lifted)
+					PORTB &= ~(1<<PORTB3); // pull PB3 low (Not lifted)
+					
+					if (PINB & (1<<PINB4)) { // authorized
+						authorized = 1;
+					} else { // not authorized
+						authorized = 0;
+					}
 
-					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, package_down);
+					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, 1);
 					UART_putstring(datalog_info);
 					//_delay_ms(5000);
 					//_delay_ms(500);
@@ -129,17 +159,23 @@ int main(void)
 			} else {
 				adc_count = 0; 
 				/// NOTE: ADC range [-10000, 3000] is ignored either side
-				if ((buffer > 3000) && package_down) {
+				if (package_down) {
 					RTC_getTime(my_rtc);
 					package_down = 0;
-					PORTB |= (1<<PORTB1); // pull PB1 high (lifted)
+					PORTB |= (1<<PORTB3); // pull PB3 high (lifted)
+					
+					if (PINB & (1<<PINB4)) { // authorized
+						authorized = 1;
+					} else { // not authorized
+						authorized = 0;
+					}
 
-					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, package_down);
+					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, 0);
 					UART_putstring(datalog_info);
 					//_delay_ms(5000);
 					//_delay_ms(500);
 				}
 			}
-			_delay_ms(500); // measure load cell every 0.5 seconds
+			//_delay_ms(1000); // measure load cell every 0.5 seconds
     }
 }
