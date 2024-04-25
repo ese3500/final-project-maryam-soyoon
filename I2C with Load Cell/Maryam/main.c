@@ -32,12 +32,12 @@ int32_t buffer;
 char String[30];
 
 void Initialize() {
-	//cli();
+	cli();
 
 	DDRB &= ~(1 << DDB4); // PB4 "authorized" input
 	// Enable pin change interrupt for PB4
-	//PCICR |= (1 << PCIE0);
-	//PCMSK0 |= (1 << PCINT4);
+	PCICR |= (1 << PCIE0);
+	PCMSK0 |= (1 << PCINT4);
 
 	DDRB |= (1<<DDB3); // PB3 "lifted" output
 	PORTB |= (1<<PORTB3); // pull PB1 high
@@ -63,7 +63,7 @@ void Initialize() {
 	*/
 
 	/// TODO: check this doesn't break things
-	//sei(); 
+	sei(); 
 
 	// Initialize UART
 	UART_init(BAUD_PRESCALER);
@@ -77,6 +77,7 @@ void Initialize() {
 	my_rtc = malloc(sizeof(rtc));
 	
 	package_down = 0;
+	authorized = 0;
 }
 
 void calibrate() {
@@ -105,7 +106,7 @@ ISR(TIMER1_OVF_vect) {
 	}
 }
 */
-/*
+
 ISR(PCINT0_vect) { // PB4 "authorized" changed
 	/// TODO: Pin change stuff
 	if (PINB & (1<<PINB4)) { // authorized
@@ -114,7 +115,7 @@ ISR(PCINT0_vect) { // PB4 "authorized" changed
 		authorized = 0;
 	}
 }
-*/
+
 
 
 int main(void)
@@ -130,7 +131,7 @@ int main(void)
 //  						UART_putstring(String);
 			
 
-			if (buffer < -15000) {
+			if (buffer < - 15000) {
 				/// TODO: check if certain plus delta value could be the case with different position
 				// package should exceed threshold for 5 seconds
 				if (!package_down) {
@@ -144,11 +145,11 @@ int main(void)
 					package_down = 1;
 					PORTB &= ~(1<<PORTB3); // pull PB3 low (Not lifted)
 					
-					if (PINB & (1<<PINB4)) { // authorized
-						authorized = 1;
-					} else { // not authorized
-						authorized = 0;
-					}
+// 					if (PINB & (1<<PINB4)) { // authorized
+// 						authorized = 1;
+// 					} else { // not authorized
+// 						authorized = 0;
+// 					}
 
 					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, 1);
 					UART_putstring(datalog_info);
@@ -156,7 +157,7 @@ int main(void)
 					//_delay_ms(500);
 					}
 				}
-			} else {
+			} else if (buffer > -5000) {
 				adc_count = 0; 
 				/// NOTE: ADC range [-10000, 3000] is ignored either side
 				if (package_down) {
@@ -164,11 +165,11 @@ int main(void)
 					package_down = 0;
 					PORTB |= (1<<PORTB3); // pull PB3 high (lifted)
 					
-					if (PINB & (1<<PINB4)) { // authorized
-						authorized = 1;
-					} else { // not authorized
-						authorized = 0;
-					}
+// 					if (PINB & (1<<PINB4)) { // authorized
+// 						authorized = 1;
+// 					} else { // not authorized
+// 						authorized = 0;
+// 					}
 
 					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, 0);
 					UART_putstring(datalog_info);
