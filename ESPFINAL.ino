@@ -53,28 +53,10 @@ SoftwareSerial MySerial(rxPin, txPin, false);
 // Service Account's client email
 #define CLIENT_EMAIL "ese3500maryamsoyoon@esp3500datalogger.iam.gserviceaccount.com"
 
-uint8_t id;
+
 bool valid;
-bool stop;
-char seconds1;
-char seconds2;
-char minutes1;
-char minutes2;
-char hours1;
-char hours2;
-char day1;
-char day2;
-char date1;
-char date2;
-char month1;
-char month2;
-
-bool key1;
-bool key2;
-bool key3;
-
-uint8_t authorized; // 1 is authorized, 0 is not
-bool proceed;
+char authorized_str[20];
+char package_str[20];
 
 int count;
 char string[30];
@@ -239,17 +221,7 @@ void setup()
       #endif
   }
 
-  id = 0;
-  authorized = 0;
-  proceed = false;
-  stop = false;
-
-  key1 = false;
-  key2 = false;
-  key3 = false;
-
   count = 0;
-  id = 0;
 }
 
 void loop()
@@ -259,22 +231,27 @@ void loop()
   // while (MySerial.available() <= 0);
 
   while(MySerial.available() > 0) {
-    Serial.println("Here");
     char my_char = MySerial.read();
     string[count] = my_char;
     count++;
   }
 
-  if (strlen(string) == 14) {
+  if (strlen(string) == 16) {
     valid = true;
     Serial.println(string);
   }
 
-  char authorized_str[20];
-  if (authorized) {
+
+  if (string[14] == '1') {
     sprintf(authorized_str, "Authorized");
   } else {
     sprintf(authorized_str, "Not Authorized");
+  }
+
+  if (string[15] == '1') {
+    sprintf(package_str, "Package put down");
+  } else {
+    sprintf(package_str, "Package picked up");
   }
 
   if (valid) {
@@ -307,7 +284,7 @@ void loop()
         valueRange.add("majorDimension", "ROWS");
         valueRange.set("values/[0]/[0]", string);
         valueRange.set("values/[0]/[1]", authorized_str);
-        // valueRange.set("values/[0]/[2]", );
+        valueRange.set("values/[0]/[2]", package_str);
 
         // valueRange.set("values/[0]/[0]", "HELLO");
         // valueRange.set("values/[0]/[1]", "WORLD");
@@ -331,8 +308,13 @@ void loop()
 
     valid = false;
 
-    for (int i = 0; i < 15; i++) {
+    for (int i = 0; i < 30; i++) {
       string[i] = 0;
+    }
+
+    for (int i = 0; i < 20; i++) {
+      authorized_str[i] = 0;
+      package_str[i] = 0;
     }
 
     count = 0;
