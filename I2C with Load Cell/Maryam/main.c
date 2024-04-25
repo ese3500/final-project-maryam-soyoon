@@ -142,6 +142,6 @@ int main(void)
 					//_delay_ms(500);
 				}
 			}
-			delay_ms(500); // measure load cell every 0.5 seconds
+			_delay_ms(500); // measure load cell every 0.5 seconds
     }
 }

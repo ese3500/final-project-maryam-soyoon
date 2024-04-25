@@ -56,9 +56,16 @@ volatile int incorrect_count = 0; /// TODO: count number of incorrect submission
 volatile int overflow_count = 0;
 volatile int disabled = 0; // flag to indicate if alarm is disabled
 volatile int buzz = 0; // keeps track of buzzer on/off
+volatile int unauthorized_pickup = 0;
+volatile int putdown = 0; 
+volatile int putdown_count = 0;
+volatile int pickup_count = 0;
+
+volatile int delay_count = 0;
 
 void buzz_on() { // buzzer on (50% duty cycle)
 	OCR2B = OCR2A / 2;
+	//OCR2B = OCR2A / 30;
 	buzz = 1;
 }
 
@@ -95,16 +102,16 @@ void Initialize() {
 	DDRB &= ~(1<<DDB4); //PB4 "lifted" input
 	/// TODO: "lifted" output from the other Atmega should be pulled high by default
 	
-	DDRD |= (1 << DDD7); // PD7 "disabled" output
-	PORTD &= ~(1<<PORTD7); // pull PD7 low
+	DDRC |= (1 << DDC0); // PC0 "disabled" output
+	PORTC &= ~(1<<PORTC0); // pull PC0 low
 	DDRD |= (1 << DDD3); // PD3 buzzer output (OC2B)
 	
-	PCICR |= (1 << PCIE0);	 // Enable Pin Change Interrupt for PCINT0-7
+	//PCICR |= (1 << PCIE0);	 // Enable Pin Change Interrupt for PCINT0-7
 	//PCICR |= (1 << PCIE1);	 // Enable Pin Change Interrupt for PCINT8-14
 	//PCICR |= (1 << PCIE2);	 // Enable Pin Change Interrupt for PCINT16-23
 	
 	// Enable Pin Change Interrupt for:
-	PCMSK0 |= (1 << PCINT4); // PB4
+	//PCMSK0 |= (1 << PCINT4); // PB4
 
 	/*
 	PCMSK1 |= (1 << PCINT9); // PC1
@@ -145,6 +152,7 @@ void Initialize() {
 	TCCR2A |= (1<<COM2B1);
 
 	OCR2A = 158; // sounds G
+	//OCR2A = 250; // sounds G
 	buzz_off(); //OCR2B = 0;
 	
 	/// TODO: erase below after integration. for testing.
@@ -182,16 +190,17 @@ void clear_num() {
 	LCD_drawString(0, 2, "# submit, * clear", WHITE, BLACK);
 	LCD_drawLine(1,12,158,12,65535);
 
-	if (buzz && !disabled && (PINB & (1<<PINB6))) {
-		LCD_drawString(0, 2, "UNAUTHORIZED PICKUP", RED, BLACK);
+	if (putdown) { // NOT lifted
+		/// TODO: check if the position does not mess up
+		LCD_drawString(0, 120, "PACKAGE PUT DOWN", WHITE, BLACK);
+	} else if (disabled) {
+		LCD_drawString(0, 120, "Alarm disabled", WHITE, BLACK);
+	} else if (unauthorized_pickup) {
+		LCD_drawString(0, 120, "UNAUTHORIZED PICKUP", RED, BLACK);
 		} else if (incorrect_count >= 3) {
 		/// TODO: check if too long
 		LCD_drawString(0, 120, "Incorrect PW 3 or more times!", RED, BLACK);
-		} else if (!(PINB & (1<<PINB6))) { // NOT lifted
-		/// TODO: check if the position does not mess up
-		LCD_drawString(0, 120, "PACKAGE PUT DOWN", WHITE, BLACK);
-	}
-
+		} //else if (!(PINB & (1<<PINB6))) { // NOT lifted
 
 	// erase all numbers
 	//LCD_drawBlock(1, 42, 158, 126, BLACK);
@@ -215,26 +224,48 @@ ISR(TIMER1_OVF_vect) {
 	if (disabled && (overflow_count >= 15)) {
 		// 1 minute passed
 		disabled = 0;
-		PORTD &= ~(1<<PORTD7); // pull PD7 low
+		PORTC &= ~(1<<PORTC0); // pull PC0 low
+		overflow_count = 0;
+		incorrect_count = 0; // reset incorrect password input count
+		unauthorized_pickup = 0;
+		
 		/// TODO: for testing. remove after confirming.
 		//buzz_on();
 	}
 }
 
+
 ISR(PCINT0_vect) { //PB4 changed
-	if (PINB & (1<<PINB4)) { // PB4 HIGH, "lifted"
+	if (putdown && (PINB & (1<<PINB4))) { // PB4 HIGH, "lifted"
 		if (!disabled) {
+			putdown_count++;
+			if (putdown_count == 5) {
+			putdown = 0;
+			if (!unauthorized_pickup) {
 			buzz_on();
 
 			// indicate on screen
 			//LCD_setScreen(BLACK);	
-			//LCD_drawString(0, 2, "UNAUTHORIZED PICKUP", RED, BLACK);
+			//LCD_drawString(0, 120, "UNAUTHORIZED PICKUP", RED, BLACK);
 			// --> will be handled in "clear_num()" function
+			unauthorized_pickup = 1;
+			putdown_count = 0;
+			clear_num();
+			}
+			}
 		}
-	} else { // package put down
-		clear_num();	
+	} else if (!putdown && !(PINB & (1<<PINB4))){ // package put down
+	putdown_count++;
+	if (putdown_count == 5) {
+	putdown = 1;
+	if (!unauthorized_pickup) {
+		clear_num();
+	}
 	}
 }
+
+}
+
 
 /*
 ISR(PCINT1_vect) {
@@ -472,7 +503,7 @@ void submit_num() {
 		
 		/// Correct password ///
 		disabled = 1;
-		PORTD |= (1<<PORTD7); // pull PD7 high
+		PORTC |= (1<<PORTC0); // pull PC0 high
 
 		// Write to the screen 
 		LCD_setScreen(BLACK);	
@@ -483,6 +514,8 @@ void submit_num() {
 		buzz_off();
 		overflow_count = 0;		
 		incorrect_count = 0; // reset incorrect password input count
+		unauthorized_pickup = 0;
+		
 		clear_num();
 	}
 	
@@ -500,6 +533,44 @@ int main(void)
     while (1) 
     {
 		// don't read keypad while alarm is disabled.
+		
+		if (putdown && (PINB & (1<<PINB4))) { // PB4 HIGH, "lifted"
+			putdown_count = 0;
+			if (!disabled) {
+				pickup_count++;
+				if (pickup_count == 5) {
+					putdown = 0;
+					if (!unauthorized_pickup) {
+						buzz_on();
+
+						// indicate on screen
+						//LCD_setScreen(BLACK);
+						//LCD_drawString(0, 120, "UNAUTHORIZED PICKUP", RED, BLACK);
+						// --> will be handled in "clear_num()" function
+						unauthorized_pickup = 1;
+						pickup_count = 0;
+						clear_num();
+					}
+				}
+			}
+			} else if (!putdown && !(PINB & (1<<PINB4))){ // package put down
+				pickup_count = 0;
+			putdown_count++;
+			if (putdown_count == 5) {
+				putdown = 1;
+				if (!unauthorized_pickup) {
+					clear_num();
+				}
+				putdown_count = 0;
+			}
+		} else {
+			putdown_count = 0;
+			pickup_count = 0;
+		}
+
+		
+		if (delay_count == 5) {
+			delay_count = 0; // reset delay count
 		if (!disabled) {
 			short key = read_keypad();
 			
@@ -522,8 +593,11 @@ int main(void)
 				//UART_putstring("\n");
 			}
 		}
+	}
+		
 
-		_delay_ms(250);	
+		_delay_ms(50);	
+		delay_count++;
   }
 }
 
