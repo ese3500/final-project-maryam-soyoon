@@ -27,6 +27,7 @@ volatile int overflow_count = 0;
 volatile int adc_count = 0;
 //volatile int32_t adc_sum = 0;
 rtc* my_rtc;
+int32_t buffer;
 
 void Initialize() {
 	cli();
@@ -63,10 +64,7 @@ void Initialize() {
 	sei(); 
 
 	// Initialize UART
-	UART_init(BAUD_PRESCALER);
-
-	int32_t buffer;
-	
+	UART_init(BAUD_PRESCALER);	
 	begin();
 	
 	ADC_Init();
@@ -120,7 +118,7 @@ int main(void)
 					if (adc_count >= 10) {
 					RTC_getTime(my_rtc);
 					package_down = 1;
-					PORTB |= (1<<PORTB6); // pull PB6 low (Not lifted)
+					PORTB &= ~(1<<PORTB1); // pull PB1 low (Not lifted)
 
 					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, package_down);
 					UART_putstring(datalog_info);
@@ -134,7 +132,7 @@ int main(void)
 				if ((buffer > 3000) && package_down) {
 					RTC_getTime(my_rtc);
 					package_down = 0;
-					PORTB &= ~(1<<PORTB6); // pull PB6 high (lifted)
+					PORTB |= (1<<PORTB1); // pull PB1 high (lifted)
 
 					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, package_down);
 					UART_putstring(datalog_info);
