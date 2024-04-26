@@ -32,12 +32,12 @@ int32_t buffer;
 char String[30];
 
 void Initialize() {
-	cli();
+	//cli();
 
-	DDRB &= ~(1 << DDB4); // PB4 "authorized" input
+	DDRB &= ~(1 << DDB5); // PB5 "authorized" input
 	// Enable pin change interrupt for PB4
-	PCICR |= (1 << PCIE0);
-	PCMSK0 |= (1 << PCINT4);
+	//PCICR |= (1 << PCIE0);
+	//PCMSK0 |= (1 << PCINT4);
 
 	DDRB |= (1<<DDB3); // PB3 "lifted" output
 	PORTB |= (1<<PORTB3); // pull PB1 high
@@ -63,7 +63,7 @@ void Initialize() {
 	*/
 
 	/// TODO: check this doesn't break things
-	sei(); 
+	//sei(); 
 
 	// Initialize UART
 	UART_init(BAUD_PRESCALER);
@@ -107,14 +107,14 @@ ISR(TIMER1_OVF_vect) {
 }
 */
 
-ISR(PCINT0_vect) { // PB4 "authorized" changed
-	/// TODO: Pin change stuff
-	if (PINB & (1<<PINB4)) { // authorized
-		authorized = 1;
-	} else { // not authorized
-		authorized = 0;
-	}
-}
+// ISR(PCINT0_vect) { // PB4 "authorized" changed
+// 	/// TODO: Pin change stuff
+// 	if (PINB & (1<<PINB4)) { // authorized
+// 		authorized = 1;
+// 	} else { // not authorized
+// 		authorized = 0;
+// 	}
+// }
 
 
 
@@ -145,11 +145,15 @@ int main(void)
 					package_down = 1;
 					PORTB &= ~(1<<PORTB3); // pull PB3 low (Not lifted)
 					
-// 					if (PINB & (1<<PINB4)) { // authorized
-// 						authorized = 1;
-// 					} else { // not authorized
-// 						authorized = 0;
-// 					}
+					if (PINB & (1<<PINB5)) { // authorized
+						authorized = 1;
+						//sprintf(String, "Authorized\n");
+						//UART_putstring(String);
+					} else { // not authorized
+						authorized = 0;
+						//sprintf(String, "Not Authorized\n");
+						//UART_putstring(String);
+					}
 
 					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, 1);
 					UART_putstring(datalog_info);
@@ -157,7 +161,7 @@ int main(void)
 					//_delay_ms(500);
 					}
 				}
-			} else if (buffer > -5000) {
+			} else {
 				adc_count = 0; 
 				/// NOTE: ADC range [-10000, 3000] is ignored either side
 				if (package_down) {
@@ -165,11 +169,15 @@ int main(void)
 					package_down = 0;
 					PORTB |= (1<<PORTB3); // pull PB3 high (lifted)
 					
-// 					if (PINB & (1<<PINB4)) { // authorized
-// 						authorized = 1;
-// 					} else { // not authorized
-// 						authorized = 0;
-// 					}
+					if (PINB & (1<<PINB5)) { // authorized
+						authorized = 1;
+						//sprintf(String, "Authorized\n");
+						//UART_putstring(String);
+					} else { // not authorized
+						authorized = 0;
+						//sprintf(String, "Not Authorized\n");
+						//UART_putstring(String);
+					}
 
 					sprintf(datalog_info, "%02d:%02d:%02d %02d/%02d%01d%01d", my_rtc->hours, my_rtc->minutes, my_rtc->seconds, my_rtc->month, my_rtc->date, authorized, 0);
 					UART_putstring(datalog_info);

@@ -203,7 +203,7 @@ void setup()
       valueRange.add("majorDimension", "ROWS");
       valueRange.set("values/[0]/[0]", "Timestamp");
       valueRange.set("values/[0]/[1]", "Authorized");
-      // valueRange.set("values/[0]/[2]", "Authorized");
+      valueRange.set("values/[0]/[2]", "Action");
 
       // For Google Sheet API ref doc, go to https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets.values/append
 
@@ -228,9 +228,12 @@ void loop()
 {
   uint8_t byteFromSerial;
 
-  // while (MySerial.available() <= 0);
+  while (MySerial.available() <= 0) {
+    Serial.println("No UART :(");
+  };
 
   while(MySerial.available() > 0) {
+    Serial.println("Trying to get from UART");
     char my_char = MySerial.read();
     string[count] = my_char;
     count++;
@@ -241,18 +244,22 @@ void loop()
     Serial.println(string);
   }
 
-
-  if (string[14] == '1') {
-    sprintf(authorized_str, "Authorized");
-  } else {
-    sprintf(authorized_str, "Not Authorized");
-  }
-
   if (string[15] == '1') {
     sprintf(package_str, "Package put down");
+    sprintf(authorized_str, "N/A");
   } else {
     sprintf(package_str, "Package picked up");
+    if (string[14] == '1') {
+      sprintf(authorized_str, "Authorized");
+      // Serial.println("Authorized");
+    } else {
+      sprintf(authorized_str, "Not Authorized");
+      // Serial.println("Not Authorized");
+    }
   }
+
+  string[15] = 0;
+  string[14] = 0;
 
   if (valid) {
     // Call ready() repeatedly in loop for authentication checking and processing
@@ -319,6 +326,8 @@ void loop()
 
     count = 0;
   }
+
+  // Serial.println(string);
 }
 
 void tokenStatusCallback(TokenInfo info)
