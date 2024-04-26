@@ -221,13 +221,15 @@ ISR(TIMER1_OVF_vect) {
 		// 5 minutes passed
 
 	// 1 minute: 60/4.19424 = 14.19 overflows
-	if (disabled && (overflow_count >= 15)) {
+	// 30 seconds: 7 overflow
+	if (disabled && (overflow_count >= 7)) {
 		// 1 minute passed
 		disabled = 0;
 		PORTC &= ~(1<<PORTC0); // pull PC0 low
 		overflow_count = 0;
 		incorrect_count = 0; // reset incorrect password input count
 		unauthorized_pickup = 0;
+		clear_num();
 		
 		/// TODO: for testing. remove after confirming.
 		//buzz_on();
@@ -238,8 +240,8 @@ ISR(TIMER1_OVF_vect) {
 ISR(PCINT0_vect) { //PB4 changed
 	if (putdown && (PINB & (1<<PINB4))) { // PB4 HIGH, "lifted"
 		if (!disabled) {
-			putdown_count++;
-			if (putdown_count == 5) {
+			//putdown_count++;
+			//if (putdown_count == 5) {
 			putdown = 0;
 			if (!unauthorized_pickup) {
 			buzz_on();
@@ -248,11 +250,21 @@ ISR(PCINT0_vect) { //PB4 changed
 			//LCD_setScreen(BLACK);	
 			//LCD_drawString(0, 120, "UNAUTHORIZED PICKUP", RED, BLACK);
 			// --> will be handled in "clear_num()" function
+			
 			unauthorized_pickup = 1;
 			putdown_count = 0;
 			clear_num();
 			}
-			}
+			//}
+		} else { // disabled
+			// picked up before 1 minute passed
+			// enable the system again
+			disabled = 0;
+			PORTC &= ~(1<<PORTC0); // pull PC0 low
+			overflow_count = 0;
+			incorrect_count = 0; // reset incorrect password input count
+			unauthorized_pickup = 0;
+			clear_num();
 		}
 	} else if (!putdown && !(PINB & (1<<PINB4))){ // package put down
 	putdown_count++;
@@ -309,13 +321,13 @@ short read_keypad() {
 	// check which column pin is pulled down
 	
 	if (!(PINC & (1<<PINC1))) { // C1 is LOW
-		UART_putstring("1\n");
+		//UART_putstring("1\n");
 		return_val = 1;
 	} else if (!(PINC & (1<<PINC2))) {
-		UART_putstring("2\n");
+		//UART_putstring("2\n");
 		return_val = 2;
 	} else if (!(PINC & (1<<PINC3))) {
-		UART_putstring("3\n");
+		//UART_putstring("3\n");
 		return_val = 3;
 	}
 	
@@ -341,13 +353,13 @@ short read_keypad() {
 	PORTC &= ~(1<<PORTC5); // pull R2 low
 	
 	if (!(PINC & (1<<PINC1))) { // C1 is LOW
-		UART_putstring("4\n");
+		//UART_putstring("4\n");
 		return_val = 4;
 		} else if (!(PINC & (1<<PINC2))) {
-		UART_putstring("5\n");
+		//UART_putstring("5\n");
 		return_val = 5;
 		} else if (!(PINC & (1<<PINC3))) {
-		UART_putstring("6\n");
+		//UART_putstring("6\n");
 		return_val = 6;
 	}
 	
@@ -374,13 +386,13 @@ short read_keypad() {
 	PORTD &= ~(1<<PORTD2); // pull R3 low
 	
 	if (!(PINC & (1<<PINC1))) { // C1 is LOW
-		UART_putstring("7\n");
+		//UART_putstring("7\n");
 		return_val = 7;
 		} else if (!(PINC & (1<<PINC2))) {
-		UART_putstring("8\n");
+		//UART_putstring("8\n");
 		return_val = 8;
 		} else if (!(PINC & (1<<PINC3))) {
-		UART_putstring("9\n");
+		//UART_putstring("9\n");
 		return_val = 9;
 	}
 
@@ -410,13 +422,13 @@ short read_keypad() {
 	PORTD &= ~(1<<PORTD4); // pull R4 low
 	
 	if (!(PINC & (1<<PINC1))) { // C1 is LOW
-		UART_putstring("*\n");
+		//UART_putstring("*\n");
 		return_val = 10;
 		} else if (!(PINC & (1<<PINC2))) {
-		UART_putstring("0\n");
+		//UART_putstring("0\n");
 		return_val = 0;
 		} else if (!(PINC & (1<<PINC3))) {
-		UART_putstring("#\n");
+		//UART_putstring("#\n");
 		return_val = 11;
 	}
 	
@@ -528,18 +540,18 @@ int main(void)
 	
 	/// TODO: debugging
 	UART_init(BAUD_PRESCALER);
-	UART_putstring("Hello World\n");
+	//UART_putstring("Hello World\n");
 	
     while (1) 
     {
 		// don't read keypad while alarm is disabled.
 		
 		if (putdown && (PINB & (1<<PINB4))) { // PB4 HIGH, "lifted"
-			putdown_count = 0;
+			//putdown_count = 0;
+			putdown = 0;
 			if (!disabled) {
-				pickup_count++;
-				if (pickup_count == 5) {
-					putdown = 0;
+				//pickup_count++;
+				//if (pickup_count == 5) {
 					if (!unauthorized_pickup) {
 						buzz_on();
 
@@ -547,22 +559,34 @@ int main(void)
 						//LCD_setScreen(BLACK);
 						//LCD_drawString(0, 120, "UNAUTHORIZED PICKUP", RED, BLACK);
 						// --> will be handled in "clear_num()" function
+						
 						unauthorized_pickup = 1;
 						pickup_count = 0;
 						clear_num();
 					}
-				}
-			}
-			} else if (!putdown && !(PINB & (1<<PINB4))){ // package put down
+				//}
+			
+			} /*else { // disabled
+			// picked up before 1 minute passed
+			// enable the system again
+			disabled = 0;
+			PORTC &= ~(1<<PORTC0); // pull PC0 low
+			overflow_count = 0;
+			incorrect_count = 0; // reset incorrect password input count
+			unauthorized_pickup = 0;
+			clear_num();
+		}
+		*/
+			} else if (!disabled && !putdown && !(PINB & (1<<PINB4))){ // package put down
 				pickup_count = 0;
 			putdown_count++;
-			if (putdown_count == 5) {
+			//if (putdown_count == 5) {
 				putdown = 1;
-				if (!unauthorized_pickup) {
+				//if (!unauthorized_pickup) {
 					clear_num();
-				}
+				//}
 				putdown_count = 0;
-			}
+			//}
 		} else {
 			putdown_count = 0;
 			pickup_count = 0;
@@ -595,7 +619,6 @@ int main(void)
 		}
 	}
 		
-
 		_delay_ms(50);	
 		delay_count++;
   }
