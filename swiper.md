@@ -1,5 +1,5 @@
 layout: page
 title: "PAGE-TITLE"
-permalink: /about
+permalink: /
 
 Hi, we are Swiper no Swiping!
