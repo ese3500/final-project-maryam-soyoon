@@ -272,17 +272,58 @@ If you’ve never made a Github pages website before, you can follow this webpag
 
 What were your results? Namely, what was the final solution/design to your problem?
 
+Our final product was a load cell wedged between two wooden plates, connected to a 24-bit ADC and a Real-Time Clock over I2C, a password-based alarm system, and a wireless data logging feature. Our product was able to successfully detect packages being put down and picked up, and put the corresponding package action information into the data log, as well as pull timestamps from the Real-Time Clock. The buzzer would go off if a package was picked up in an unauthorized manner and be disabled using the password.
+
+We intended for our product to give homeowners a greater sense of security in terms of package delivery. Through the alarm system and data logging feature, we believe that this helped in taking a step towards our goal. It is not a fool-proof system, of course, and the additon of the camera and two-factor authentication would only add layers of security to our project that would make it more useful in the real world.
+
 #### 3.1 Software Requirements Specification (SRS) Results
 
 Based on your quantified system performance, comment on how you achieved or fell short of your expected software requirements. You should be quantifying this, using measurement tools to collect data.
+
+Our SRS are as follows:
+
+- SRS 01 – Package movement (placement and picking up) will be detected using pin change interrupts with the DRDY pin on the Load Cell ADC.
+
+  - DONE - We ended up not using the DRDY pin, but alternately, a bit in one of the registers that would tell us if data was ready. In the end, we were able to detect packages at least as light as Maryam's iPhone.
+
+
+- SRS 02 – ADC will be used to read from the SDA line of the Load Cell ADC to determine package weight.
+
+  - DONE - We were successfully able to get data from the data line of the I2C and use these numbers in determining whether a package was put down or picked up.
+
+- SRS 03 – Package movement interrupt will turn on the Camera peripheral and stored to the SD Card (later on it may be sent to the homeowner)
+
+  - NOT DONE - We did not incorporate the camera.
+
+- SRS 04 – Two-factor authentication set up with Blynk so that homeowners can verify that package removal was their doing.
+
+  - NOT DONE - We did not incorporate two-factor authentication or Blynk.
+
+- SRS 05 – PWM used to set off the alarm system to fend off any thieves that is turned off using two-factor authentication (unless already indicated in app) or already typed into keypad and picked up within reasonable time frame (e.g. 1 minute)
+
+  - DONE - The alarm system worked and made sure that a user could only enter a password up to 3 times incorrectly before setting off the alarm. The alarm was also disabled for 30 seconds once a password was put in.
+
+- SRS 06 – SPI Driver will be used to write data to (and read from) the SD Card.
+
+  - NOT DONE - We did not use SPI and SD Card.
+
+- SRS 07 – Maybe nice UI for Blynk!
+
+  - NOT DONE - We did not incorporate Blynk.
 
 #### 3.2 Hardware Requirements Specification (HRS) Results
 
 Based on your quantified system performance, comment on how you achieved or fell short of your expected hardware requirements. You should be quantifying this, using measurement tools to collect data.
 
+Our HRS are as follows:
+
 ### 4. Conclusion
 
 Reflect on your project. Some questions to consider: What did you learn from it? What went well? What accomplishments are you proud of? What did you learn/gain from this experience? Did you have to change your approach? What could have been done differently? Did you encounter obstacles that you didn’t anticipate? What could be a next step for this project?
+
+- Maryam: The biggest learning moment for me during this project was when working on the I2C driver for the Real-Time Clock and Load-Cell ADC sensor. I have used I2C libraries before that abstracted away many - if not all - of the underlying inter-device communication. Although it was extremely challenging, using tools like the logic analyzer and communicating with other students and TAs, helped me ultimately succeed in reading values from our 2 I2C devices. The ATMega-UART-ESP interfacing was more difficult than I was anticipating, and if not for side-by-side debugging with a graduate student, I wouldn't have been able to get the RTC data sent over to the ESP-32 in a readable format. Soyoon and I also did not anticipate the integration to be too difficult, because our ATMegas were mostly separated in terms of functionality and were communicating via pin change interrupts. However, we realized we oversimplified this step and that even getting the pin changes to work as intended was not as smooth as we thought. We probably should have started integration earlier instead of leaving it for the day before the demo.
+
+A good next step for this project would be incorporating the camera for greater household security and, as suggested by Nick during our demo, potentially using the data logging feature into an app. That is, using that data in 
 
 ## References
 
