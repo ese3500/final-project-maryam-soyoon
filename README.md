@@ -286,7 +286,6 @@ Our SRS are as follows:
 
   - DONE - We ended up not using the DRDY pin, but alternately, a bit in one of the registers that would tell us if data was ready. In the end, we were able to detect packages at least as light as Maryam's iPhone.
 
-
 - SRS 02 – ADC will be used to read from the SDA line of the Load Cell ADC to determine package weight.
 
   - DONE - We were successfully able to get data from the data line of the I2C and use these numbers in determining whether a package was put down or picked up.
@@ -317,6 +316,38 @@ Based on your quantified system performance, comment on how you achieved or fell
 
 Our HRS are as follows:
 
+- HRS 01 – Our system shall use two ATmega328PB microcontrollers. One will handle the Load Cell, LCD Screen, and keypad
+
+  - DONE - Our implementation used 2 ATMegas, one for Keypad/LCD screen/Buzzer setup, and the other for the I2C and UART communication.
+
+- HRS 02 – Our system shall be powered using 5 V Battery packs, which will power both ATmega328PBs
+
+  - NOT DONE - We ended up not using a separate power source and instead used the computer cable connection to power the ATMegas
+
+- HRS 03 – The Load Cell will be used to detect packages being dropped off and picked up, with the expected range of up to 20kg.
+
+  - DONE - We were able to detect packages as light as our phone. Larger weight packages would give even bigger ADC values and would definitely cross our threshold. We kept the packages light so as to not cause our load cell to bend too far and skew our threshold value.
+
+- HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
+
+  - NOT DONE - As earlier mentioned, we did not use an SD Card and SPI and instead opted for a wireless datalogging mechanism, using ESP32.
+
+- HRS 05 – A 4-numbered keypad will be used to allow people to disable the alarm system by entering a passcode (length = 3?). If not, the alarms will sound at a high volume to notify homeowners inside (and maybe send a message) that the package has been picked up. Passwords can be entered up to 3 times until the alarm goes off, after which they will need to wait another minute to try again.
+
+  - DONE - We ended up using a 9-pin keypad and a buzzer. Our LCD/Keypad system allowed for errors up to 3 times, after which the timer went off. We also incorporated "clear" and "submit" functionality.
+
+- HRS 06 – Cameras will take snapshots at time critical moments (like package picked up, dropped off), which will be stored to the SD card alongside the timestamp.
+
+  - NOT DONE - We did not incorporate a camera or SD card
+
+- HRS 07 – Ultrasonic sensors will be able to detect when a person is nearby to turn the LCD screen on (power saving). They drive a pin high which turns on a MOSFET that turns on the LCD screen.
+
+  - NOT DONE - We did not use the ultrasonic sensor.
+
+- HRS 08 – Buzzers will be used to sound an alarm system. They can be disabled if the correct password is entered on the keypad beforehand.
+
+  - DONE - Our buzzer alarm system works and goes off if a package is picked up. It is disabled for 30 seconds if the correct password is put in.
+
 ### 4. Conclusion
 
 Reflect on your project. Some questions to consider: What did you learn from it? What went well? What accomplishments are you proud of? What did you learn/gain from this experience? Did you have to change your approach? What could have been done differently? Did you encounter obstacles that you didn’t anticipate? What could be a next step for this project?
@@ -328,6 +359,11 @@ A good next step for this project would be incorporating the camera for greater 
 ## References
 
 Fill in your references here as you work on your proposal and final submission. Describe any libraries used here.
+
+- Sahil helped a lot with UART
+- Mia helped with I2C
+- NAU7802 Documentation and library used to set up our stuff
+- ESP32 and
 
 ## Github Repo Submission Resources
 
