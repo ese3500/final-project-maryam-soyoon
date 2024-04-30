@@ -257,7 +257,7 @@ If you’ve never made a Github pages website before, you can follow this webpag
 
 ### 1. Video
 
-[Insert final project video here]
+Link to video: https://drive.google.com/file/d/1_-ESJ4E6aS7UAE-A8OpvkmLZ8wjy9N1o/view?usp=sharing
 
 ### 2. Images
 
@@ -283,7 +283,7 @@ What were your results? Namely, what was the final solution/design to your probl
 
 Our final product was a load cell wedged between two wooden plates, connected to a 24-bit ADC and a Real-Time Clock over I2C, a password-based alarm system, and a wireless data logging feature. Our product was able to successfully detect packages being put down and picked up, and put the corresponding package action information into the data log, as well as pull timestamps from the Real-Time Clock. The buzzer would go off if a package was picked up in an unauthorized manner and be disabled using the password.
 
-We intended for our product to give homeowners a greater sense of security in terms of package delivery. Through the alarm system and data logging feature, we believe that this helped in taking a step towards our goal. It is not a fool-proof system, of course, and the additon of the camera and two-factor authentication would only add layers of security to our project that would make it more useful in the real world.
+We intended for our product to give homeowners a greater sense of security in terms of package delivery to their homes. Through the alarm system and data logging feature, we believe that this deviced helped take a step towards our goal of added package security. Our solution is not a fool-proof system, of course, and with the additon of a camera and two-factor authentication, we could further add layers of security to our project that would make it more useful in the real world. We would also ideally need to find a way to bolt it down to people's porches and conceal the inner electronics.
 
 #### 3.1 Software Requirements Specification (SRS) Results
 
@@ -335,7 +335,9 @@ Our HRS are as follows:
 
 - HRS 03 – The Load Cell will be used to detect packages being dropped off and picked up, with the expected range of up to 20kg.
 
-  - DONE - We were able to detect packages as light as our phone. Larger weight packages would give even bigger ADC values and would definitely cross our threshold. We kept the packages light so as to not cause our load cell to bend too far and skew our threshold value.
+EDIT: The range is from an iPhone + case weight to (we expect) 20 kg.
+
+  - DONE - We were able to detect packages as light as our phone. Larger weight packages would give even bigger ADC values and would definitely cross our threshold. We kept the packages light so as to not cause our load cell to bend too far and skew our threshold value, so we are assuming that it would successfully work for even heavier packages.
 
 - HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
 
@@ -363,7 +365,9 @@ Reflect on your project. Some questions to consider: What did you learn from it?
 
 - Maryam: The biggest learning moment for me during this project was when working on the I2C driver for the Real-Time Clock and Load-Cell ADC sensor. I have used I2C libraries before that abstracted away many - if not all - of the underlying inter-device communication. Although it was extremely challenging, using tools like the logic analyzer and communicating with other students and TAs, helped me ultimately succeed in reading values from our 2 I2C devices. The ATMega-UART-ESP interfacing was more difficult than I was anticipating, and if not for side-by-side debugging with a graduate student, I wouldn't have been able to get the RTC data sent over to the ESP-32 in a readable format. Soyoon and I also did not anticipate the integration to be too difficult, because our ATMegas were mostly separated in terms of functionality and were communicating via pin change interrupts. However, we realized we oversimplified this step and that even getting the pin changes to work as intended was not as smooth as we thought. We probably should have started integration earlier instead of leaving it for the day before the demo.
 
-A good next step for this project would be incorporating the camera for greater household security and, as suggested by Nick during our demo, potentially using the data logging feature into an app. That is, using that data in
+- Soyoon:
+
+A good next step for this project would be incorporating the camera for greater household security and, as suggested by Nick during our demo, potentially using the data logging feature into an app. The camera could be added to take photos at critical moments, such as when a package is being dropped off and when there is an unauthorized pickup. Sending these photos to the homeowner and storing them on an SD card would be a great addition to our data logging feature. The app would also potentially make notifications more immediate to homeowners, as they could get notifications throughout the day, rather than having to check the spreadsheet and go to the most recent entry.
 
 ## References
 
