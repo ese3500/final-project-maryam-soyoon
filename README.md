@@ -3,7 +3,7 @@
     * Team Name: Swiper, no Swiping!
     * Team Members: Soyoon Park, Maryam Ali
     * Github Repository URL: https://github.com/ese3500/final-project-maryam-soyoon
-    * Github Pages Website URL: [for final submission]
+    * Github Pages Website URL: https://ese3500.github.io/final-project-maryam-soyoon/
     * Description of hardware: (embedded hardware, laptop, etc)
 
 ## Final Project Proposal
@@ -39,11 +39,11 @@ These are to help guide and direct your progress.
 7. Distinguish between proper package retrieval (based on owner input) and package theft
 
 8. Store data to an SD Card formatted as Date/Time, Package Weight, Authorized or not?
-Alarm system? ss a safety mechanism. The actual formatting is likely to change.
+   Alarm system? ss a safety mechanism. The actual formatting is likely to change.
 
 9. Take photos usinga a camera when a weight difference is detected.
 
-  - Can be used as evidence for police investigation
+- Can be used as evidence for police investigation
 
 10. Additional feature: upon user input on expected delivery date & time, notify owner if expected package was not delivered
 
@@ -61,28 +61,29 @@ Our intended users are homeowners who wish to safeguard their packages against t
 
 3. Functionality
 
-  1. SRS 01 – Package movement (placement and picking up) will be detected using pin change interrupts with the DRDY pin on the Load Cell ADC.
-  
-  2. SRS 02 – ADC will be used to read from the SDA line of the Load Cell ADC to determine package weight.
+1. SRS 01 – Package movement (placement and picking up) will be detected using pin change interrupts with the DRDY pin on the Load Cell ADC.
+
+1. SRS 02 – ADC will be used to read from the SDA line of the Load Cell ADC to determine package weight.
+
 
     - Meets ADC requirement
 
-  3. SRS 03 – Package movement interrupt will turn on the Camera peripheral and stored to the SD Card (later on it may be sent to the homeowner)
+3. SRS 03 – Package movement interrupt will turn on the Camera peripheral and stored to the SD Card (later on it may be sent to the homeowner)
+
 
     - Meets SPI (Serial Communication) requirement
 
-  4. SRS 04 – Two-factor authentication set up with Blynk so that homeowners can verify that package removal was their doing.
+4. SRS 04 – Two-factor authentication set up with Blynk so that homeowners can verify that package removal was their doing.
 
-	  - Meets wireless communication requirement
+   - Meets wireless communication requirement
 
-  5. SRS 05 – PWM used to set off the alarm system to fend off any thieves that is turned off using two-factor authentication (unless already indicated in app) or already typed into keypad and picked up within reasonable time frame (e.g. 1 minute)
+5. SRS 05 – PWM used to set off the alarm system to fend off any thieves that is turned off using two-factor authentication (unless already indicated in app) or already typed into keypad and picked up within reasonable time frame (e.g. 1 minute)
 
-	  - Meets timers requirement
+   - Meets timers requirement
 
-  6. SRS 06 – SPI Driver will be used to write data to (and read from) the SD Card.
+6. SRS 06 – SPI Driver will be used to write data to (and read from) the SD Card.
 
-  7. SRS 07 – Maybe nice UI for Blynk!
-
+7. SRS 07 – Maybe nice UI for Blynk!
 
 ### 5. Hardware Requirements Specification (HRS)
 
@@ -94,24 +95,24 @@ Our device uses Load Cells to measure weights and detect packages, SD cards to s
 
 2. Functionality
 
-  1. HRS 01 – Our system shall use two ATmega328PB microcontrollers. One will handle the Load Cell, LCD Screen, and keypad.
+1. HRS 01 – Our system shall use two ATmega328PB microcontrollers. One will handle the Load Cell, LCD Screen, and keypad.
 
-  2. HRS 02 – Our system shall be powered using 5 V Battery packs, which will power both ATmega328PBs
+1. HRS 02 – Our system shall be powered using 5 V Battery packs, which will power both ATmega328PBs
+
 
     - Meets power management requirement
 
-  3. HRS 03 – The Load Cell will be used to detect packages being dropped off and picked up, with the expected range of up to 20kg.
+3. HRS 03 – The Load Cell will be used to detect packages being dropped off and picked up, with the expected range of up to 20kg.
 
-  4. HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
+4. HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
 
-  5. HRS 05 – A 4-numbered keypad will be used to allow people to disable the alarm system by entering a passcode (length = 3?). If not, the alarms will sound at a high volume to notify homeowners inside (and maybe send a message) that the package has been picked up. Passwords can be entered up to 3 times until the alarm goes off, after which they will need to wait another minute to try again.
+5. HRS 05 – A 4-numbered keypad will be used to allow people to disable the alarm system by entering a passcode (length = 3?). If not, the alarms will sound at a high volume to notify homeowners inside (and maybe send a message) that the package has been picked up. Passwords can be entered up to 3 times until the alarm goes off, after which they will need to wait another minute to try again.
 
-  6. HRS 06 – Cameras will take snapshots at time critical moments (like package picked up, dropped off), which will be stored to the SD card alongside the timestamp.
+6. HRS 06 – Cameras will take snapshots at time critical moments (like package picked up, dropped off), which will be stored to the SD card alongside the timestamp.
 
-  7. HRS 07 – Ultrasonic sensors will be able to detect when a person is nearby to turn the LCD screen on (power saving). They drive a pin high which turns on a MOSFET that turns on the LCD screen.
+7. HRS 07 – Ultrasonic sensors will be able to detect when a person is nearby to turn the LCD screen on (power saving). They drive a pin high which turns on a MOSFET that turns on the LCD screen.
 
-  8. HRS 08 – Buzzers will be used to sound an alarm system. They can be disabled if the correct password is entered on the keypad beforehand.
-
+8. HRS 08 – Buzzers will be used to sound an alarm system. They can be disabled if the correct password is entered on the keypad beforehand.
 
 ### 6. MVP Demo
 
@@ -124,7 +125,6 @@ What do you expect to accomplish by the first milestone?
 - Load Cell calibrated with package weight included potentially and measuring accurate weight values using ADC and the ATmega328 PB
 
 - LCD Screen and keypad working to disable alarm system for a set time
-
 
 ### 7. Final Demo
 
@@ -153,7 +153,7 @@ What major components do you need and why?
 4. Ultrasonic sensor -> To detect when someone is near the keypad to turn the LCD screen on
 
 5. LCD Screen -> Prompts user for input and notifies if password is correct or not
-SD Card and SPI board -> To store histories and help people track
+   SD Card and SPI board -> To store histories and help people track
 
 6. 2 ATmega328 PBs -> Microcontrollers managing different systems
 
@@ -168,20 +168,19 @@ We have multple criterion for success based on our different features:
 
 2. Keypad functionality:
 
-  - Inputting an incorrect password >= 3 times should disable the keypad for ~1 minute
-  
-  - Inputting an incorrect password does not disable alarms. So, picking up the package should sound the alarm system that notifies the homeowner and can only be disabled via the app (or maybe reentry of correct passcode)
+- Inputting an incorrect password >= 3 times should disable the keypad for ~1 minute
 
-  - Inputting a correct password does disable alarms. So, lifting the package within a time frame (e.g. 1 minute) should not cause the alarms to go off.
+- Inputting an incorrect password does not disable alarms. So, picking up the package should sound the alarm system that notifies the homeowner and can only be disabled via the app (or maybe reentry of correct passcode)
+
+- Inputting a correct password does disable alarms. So, lifting the package within a time frame (e.g. 1 minute) should not cause the alarms to go off.
 
 3. LCD Screen
 
-  - Somewhat aesthetic (but mainly readable) interface for user to see prompt and enter response.
+- Somewhat aesthetic (but mainly readable) interface for user to see prompt and enter response.
 
 4. Data Storage
 
-  - Reliable storage of timestamps, photos, and useful notes for the homeowner. The exact details of what data we will be storing are currently unclear.
-
+- Reliable storage of timestamps, photos, and useful notes for the homeowner. The exact details of what data we will be storing are currently unclear.
 
 ### 11. Timeline
 
@@ -197,57 +196,53 @@ This section is to help guide your progress over the next few weeks. Feel free t
 
 Tasks for Week 1:
 
-  - Present slideshow -> Maryam and Soyoon
-  
-  - Send in first draft of BOM to be ordered -> Maryam and Soyoon
-  
-  - Make project diagram (pinout, power management) -> Maryam
+- Present slideshow -> Maryam and Soyoon
 
-  - Start working on SPI (and I2C?) driver -> Maryam
+- Send in first draft of BOM to be ordered -> Maryam and Soyoon
 
-  - Start working on Keypad code / library -> Soyoon
+- Make project diagram (pinout, power management) -> Maryam
 
-  - Work on load cell ADC library -> Soyoon?
+- Start working on SPI (and I2C?) driver -> Maryam
 
+- Start working on Keypad code / library -> Soyoon
+
+- Work on load cell ADC library -> Soyoon?
 
 Tasks for Week 2:
 
-  - Work on tasks missed in Week 1 -> Maryam and Soyoon
+- Work on tasks missed in Week 1 -> Maryam and Soyoon
 
-  - Go to MEAM Labs to figure out load cell platform -> Maryam and Syoon
-  
-  - Calibrate and read ADC Values from Load Cell -> Soyoon
+- Go to MEAM Labs to figure out load cell platform -> Maryam and Syoon
 
-  - Add LCD Graphics and integrate with Keypad code -> Maryam
+- Calibrate and read ADC Values from Load Cell -> Soyoon
 
-  - Get ultrasonic to detect distances <= 20 cm -> Maryam and Soyoon
+- Add LCD Graphics and integrate with Keypad code -> Maryam
 
-  - Send in second draft of BOM -> Maryam and Soyoon
+- Get ultrasonic to detect distances <= 20 cm -> Maryam and Soyoon
 
+- Send in second draft of BOM -> Maryam and Soyoon
 
 Tasks for Week 3:
 
-  - Work on tasks missed in Week 2 -> Maryam and Soyoon
+- Work on tasks missed in Week 2 -> Maryam and Soyoon
 
-  - Work in integrating second ATmega -> TBD
+- Work in integrating second ATmega -> TBD
 
-  - Work on data storage and SD Card -> TBD
+- Work on data storage and SD Card -> TBD
 
-  - Work on camera -> TBD
-
+- Work on camera -> TBD
 
 Tasks for Week 4:
 
-  - Work on tasks missed in Week 3 -> Maryam and Soyoon
+- Work on tasks missed in Week 3 -> Maryam and Soyoon
 
-  - Work on wireless WiFi stuff and Blynk -> TBD
+- Work on wireless WiFi stuff and Blynk -> TBD
 
-  - Test out full alarm system (password + all possible cases + disabling with WiFi) -> Maryam and Soyoon
-
+- Test out full alarm system (password + all possible cases + disabling with WiFi) -> Maryam and Soyoon
 
 Tasks for Week 5:
 
-  - Work on tasks missed in Week 4 and wrapping up! -> Maryam and Soyoon
+- Work on tasks missed in Week 4 and wrapping up! -> Maryam and Soyoon
 
 ### 12. Proposal Presentation
 
@@ -354,7 +349,7 @@ Reflect on your project. Some questions to consider: What did you learn from it?
 
 - Maryam: The biggest learning moment for me during this project was when working on the I2C driver for the Real-Time Clock and Load-Cell ADC sensor. I have used I2C libraries before that abstracted away many - if not all - of the underlying inter-device communication. Although it was extremely challenging, using tools like the logic analyzer and communicating with other students and TAs, helped me ultimately succeed in reading values from our 2 I2C devices. The ATMega-UART-ESP interfacing was more difficult than I was anticipating, and if not for side-by-side debugging with a graduate student, I wouldn't have been able to get the RTC data sent over to the ESP-32 in a readable format. Soyoon and I also did not anticipate the integration to be too difficult, because our ATMegas were mostly separated in terms of functionality and were communicating via pin change interrupts. However, we realized we oversimplified this step and that even getting the pin changes to work as intended was not as smooth as we thought. We probably should have started integration earlier instead of leaving it for the day before the demo.
 
-A good next step for this project would be incorporating the camera for greater household security and, as suggested by Nick during our demo, potentially using the data logging feature into an app. That is, using that data in 
+A good next step for this project would be incorporating the camera for greater household security and, as suggested by Nick during our demo, potentially using the data logging feature into an app. That is, using that data in
 
 ## References
 
