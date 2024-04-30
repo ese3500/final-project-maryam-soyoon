@@ -261,7 +261,21 @@ If you’ve never made a Github pages website before, you can follow this webpag
 
 ### 2. Images
 
-[Insert final project images here]
+![alt text](image.png)
+
+![alt text](image-1.png)
+
+Load Cell wedged between two wooden plates.
+
+![alt text](image-2.png)
+
+Top view of platform. Other components visible (LCD screen, keypad, buzzer, MOSFETs, NAU7802 (ADC), RTC, ESP32, ATMega328PB).
+
+![alt text](image-3.png)
+
+![alt text](image-4.png)
+
+Zoomed in set-up.
 
 ### 3. Results
 
