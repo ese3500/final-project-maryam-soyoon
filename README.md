@@ -375,8 +375,14 @@ Fill in your references here as you work on your proposal and final submission. 
 
 - Sahil helped a lot with UART
 - Mia helped with I2C
-- NAU7802 Documentation and library used to set up our stuff
-- ESP32 and
+- NAU7802 Documentation and library used to set up our stuff (https://github.com/adafruit/Adafruit_NAU7802)
+- RTC Datasheet (https://www.sparkfun.com/datasheets/Components/DS1307.pdf and https://www.analog.com/media/en/technical-documentation/data-sheets/DS1307.pdf)
+- YouTube videos for ESP WiFi stuff and referred to Lab 4 Pong code and resources
+  - Example for ESP32 Video: https://www.youtube.com/watch?v=KPOFncRDiHQ
+- Software Serial Library: https://docs.arduino.cc/learn/built-in-libraries/software-serial/
+- Hardware Serial Library: https://github.com/espressif/arduino-esp32/blob/master/cores/esp32/HardwareSerial.h
+  - And also an online resource that explained how to use this library and provided the code!
+- Arduino code for Google Sheets: https://github.com/mobizt/ESP-Google-Sheet-Client?tab=readme-ov-file
 
 ## Github Repo Submission Resources
 
