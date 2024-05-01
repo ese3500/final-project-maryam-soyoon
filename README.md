@@ -65,25 +65,23 @@ Our intended users are homeowners who wish to safeguard their packages against t
 
 1. SRS 02 – ADC will be used to read from the SDA line of the Load Cell ADC to determine package weight.
 
+   - Meets ADC requirement
 
-    - Meets ADC requirement
+1. SRS 03 – Package movement interrupt will turn on the Camera peripheral and stored to the SD Card (later on it may be sent to the homeowner)
 
-3. SRS 03 – Package movement interrupt will turn on the Camera peripheral and stored to the SD Card (later on it may be sent to the homeowner)
+   - Meets SPI (Serial Communication) requirement
 
-
-    - Meets SPI (Serial Communication) requirement
-
-4. SRS 04 – Two-factor authentication set up with Blynk so that homeowners can verify that package removal was their doing.
+1. SRS 04 – Two-factor authentication set up with Blynk so that homeowners can verify that package removal was their doing.
 
    - Meets wireless communication requirement
 
-5. SRS 05 – PWM used to set off the alarm system to fend off any thieves that is turned off using two-factor authentication (unless already indicated in app) or already typed into keypad and picked up within reasonable time frame (e.g. 1 minute)
+1. SRS 05 – PWM used to set off the alarm system to fend off any thieves that is turned off using two-factor authentication (unless already indicated in app) or already typed into keypad and picked up within reasonable time frame (e.g. 1 minute)
 
    - Meets timers requirement
 
-6. SRS 06 – SPI Driver will be used to write data to (and read from) the SD Card.
+1. SRS 06 – SPI Driver will be used to write data to (and read from) the SD Card.
 
-7. SRS 07 – Maybe nice UI for Blynk!
+1. SRS 07 – Maybe nice UI for Blynk!
 
 ### 5. Hardware Requirements Specification (HRS)
 
@@ -99,20 +97,19 @@ Our device uses Load Cells to measure weights and detect packages, SD cards to s
 
 1. HRS 02 – Our system shall be powered using 5 V Battery packs, which will power both ATmega328PBs
 
+   - Meets power management requirement
 
-    - Meets power management requirement
+1. HRS 03 – The Load Cell will be used to detect packages being dropped off and picked up, with the expected range of up to 20kg.
 
-3. HRS 03 – The Load Cell will be used to detect packages being dropped off and picked up, with the expected range of up to 20kg.
+1. HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
 
-4. HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
+1. HRS 05 – A 4-numbered keypad will be used to allow people to disable the alarm system by entering a passcode (length = 3?). If not, the alarms will sound at a high volume to notify homeowners inside (and maybe send a message) that the package has been picked up. Passwords can be entered up to 3 times until the alarm goes off, after which they will need to wait another minute to try again.
 
-5. HRS 05 – A 4-numbered keypad will be used to allow people to disable the alarm system by entering a passcode (length = 3?). If not, the alarms will sound at a high volume to notify homeowners inside (and maybe send a message) that the package has been picked up. Passwords can be entered up to 3 times until the alarm goes off, after which they will need to wait another minute to try again.
+1. HRS 06 – Cameras will take snapshots at time critical moments (like package picked up, dropped off), which will be stored to the SD card alongside the timestamp.
 
-6. HRS 06 – Cameras will take snapshots at time critical moments (like package picked up, dropped off), which will be stored to the SD card alongside the timestamp.
+1. HRS 07 – Ultrasonic sensors will be able to detect when a person is nearby to turn the LCD screen on (power saving). They drive a pin high which turns on a MOSFET that turns on the LCD screen.
 
-7. HRS 07 – Ultrasonic sensors will be able to detect when a person is nearby to turn the LCD screen on (power saving). They drive a pin high which turns on a MOSFET that turns on the LCD screen.
-
-8. HRS 08 – Buzzers will be used to sound an alarm system. They can be disabled if the correct password is entered on the keypad beforehand.
+1. HRS 08 – Buzzers will be used to sound an alarm system. They can be disabled if the correct password is entered on the keypad beforehand.
 
 ### 6. MVP Demo
 
@@ -337,7 +334,7 @@ Our HRS are as follows:
 
 EDIT: The range is from an iPhone + case weight to (we expect) 20 kg.
 
-  - DONE - We were able to detect packages as light as our phone. Larger weight packages would give even bigger ADC values and would definitely cross our threshold. We kept the packages light so as to not cause our load cell to bend too far and skew our threshold value, so we are assuming that it would successfully work for even heavier packages.
+- DONE - We were able to detect packages as light as our phone. Larger weight packages would give even bigger ADC values and would definitely cross our threshold. We kept the packages light so as to not cause our load cell to bend too far and skew our threshold value, so we are assuming that it would successfully work for even heavier packages.
 
 - HRS 04 – An SD Card will be used to keep track of information during critical events (e.g. package delivery, package pick-up, package authorization)
 
@@ -365,7 +362,8 @@ Reflect on your project. Some questions to consider: What did you learn from it?
 
 - Maryam: The biggest learning moment for me during this project was when working on the I2C driver for the Real-Time Clock and Load-Cell ADC sensor. I have used I2C libraries before that abstracted away many - if not all - of the underlying inter-device communication. Although it was extremely challenging, using tools like the logic analyzer and communicating with other students and TAs, helped me ultimately succeed in reading values from our 2 I2C devices. In the end, it was very rewarding to have gotten the I2C done, and I feel more comfortable looking at datasheets to figure out the serial communication. The ATMega-UART-ESP interfacing was more difficult than I was anticipating, and if not for side-by-side debugging with a graduate student, I wouldn't have been able to get the RTC data sent over to the ESP-32 in a readable format. Soyoon and I also did not anticipate the integration to be too difficult, because our ATMegas were mostly separated in terms of functionality and were communicating via pin change interrupts. However, we realized we oversimplified this step and that even getting the pin changes to work as intended was not as smooth as we thought. We probably should have started integration earlier instead of leaving it for the day before the demo.
 
-- Soyoon: Soyoon worked with a 9-pin keyboard, which made use of many GPIO pins. Making room for all of the pins on a single ATMega and also making room for the LCD screen and buzzer was challenging, as well as managing the different device logic, such as when to turn the buzzer on, when to disable it, for how long, the keypad mechanism, etc.
+- Soyoon: I worked with a 9-pin keyboard, which made use of many GPIO pins. Making room for all of the pins on a single ATMega and also making room for the LCD screen and buzzer was challenging, as well as managing the different device logic, such as when to turn the buzzer on, when to disable it, for how long, the keypad mechanism, etc. I also worked for integration of two Atmega boards with two gpio pins to represent inner variable states.
+  Given the Atmega pin constraints, I learned to formulate the approach structurally before implementing the project. Also, given that we were collaborating, taking different parts of the whole project, I learned on communication and documentation.
 
 A good next step for this project would be incorporating the camera for greater household security and, as suggested by Nick during our demo, potentially using the data logging feature into an app. The camera could be added to take photos at critical moments, such as when a package is being dropped off and when there is an unauthorized pickup. Sending these photos to the homeowner and storing them on an SD card would be a great addition to our data logging feature. The app would also potentially make notifications more immediate to homeowners, as they could get notifications throughout the day, rather than having to check the spreadsheet and go to the most recent entry.
 
